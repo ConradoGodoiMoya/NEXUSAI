@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Preview SaaS | Nexus{% endblock %}
+{% block content %}
+
+<style>
+  .preview-layout{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  .code-grid{
+    display:grid;
+    gap:12px;
+  }
+  .editor-box{
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.04);
+    border-radius:18px;
+    padding:14px;
+  }
+  .editor-box h3{
+    margin:0 0 10px;
+  }
+  .editor-box textarea{
+    width:100%;
+    min-height:220px;
+    resize:vertical;
+    font-family:Consolas, monospace;
+  }
+  .preview-frame-wrap{
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.04);
+    border-radius:20px;
+    padding:14px;
+    box-shadow: var(--shadow);
+  }
+  .preview-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .preview-frame{
+    width:100%;
+    height:780px;
+    border:0;
+    border-radius:16px;
+    background:#0b1020;
+  }
+  .top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+  .project-info{
+    color:var(--muted);
+    line-height:1.6;
+  }
+  @media (max-width: 980px){
+    .preview-layout{
+      grid-template-columns:1fr;
+    }
+    .preview-frame{
+      height:620px;
+    }
+  }
+</style>
+
+<div class="hero">
+  <h1>Preview do SaaS</h1>
+  <p class="project-info">
+    <b>{{ project.name }}</b>
+    {% if project.visual_style %} • {{ project.visual_style }}{% endif %}
+    {% if project.status %} • Status: {{ project.status }}{% endif %}
+  </p>
+
+  <div class="top-actions">
+    <a class="btn" href="/saas">Voltar</a>
+    {% if project.published_url %}
+      <a class="btn" href="{{ project.published_url }}" target="_blank" rel="noopener noreferrer">Abrir publicado</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="preview-layout">
+  <div class="preview-frame-wrap">
+    <div class="preview-meta">
+      <div>
+        <h3 style="margin:0;">Visualização</h3>
+        <div style="color:var(--muted);font-size:14px;">Tela separada do código para editar sem confusão.</div>
+      </div>
+      <button class="btn" type="button" id="reloadPreviewBtn">Atualizar preview</button>
+    </div>
+
+    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+  </div>
+
+  <div class="code-grid">
+    <form method="post" action="{{ url_for('saas.saas_save', project_id=project.id) }}">
+      <div class="editor-box">
+        <h3>HTML</h3>
+        <textarea id="preview_html" name="preview_html">{{ project_data.preview_html or '' }}</textarea>
+      </div>
+
+      <div class="editor-box">
+        <h3>CSS</h3>
+        <textarea id="preview_css" name="preview_css">{{ project_data.preview_css or '' }}</textarea>
+      </div>
+
+      <div class="editor-box">
+        <h3>JavaScript</h3>
+        <textarea id="preview_js" name="preview_js">{{ project_data.preview_js or '' }}</textarea>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn primary" type="submit">Salvar código</button>
+      </div>
+    </form>
+
+    <form method="post" action="{{ url_for('saas.saas_publish', project_id=project.id) }}">
+      <div class="editor-box">
+        <h3>Publicação</h3>
+        <div style="color:var(--muted);line-height:1.6;">
+          Quando publicar, o projeto vai mudar para status publicado.
+          {% if project.published_url %}
+            <br><br><b>URL publicada:</b> {{ project.published_url }}
+          {% endif %}
+        </div>
+        <div class="top-actions">
+          <button class="btn primary" type="submit">Publicar projeto</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  const htmlEl = document.getElementById("preview_html");
+  const cssEl = document.getElementById("preview_css");
+  const jsEl = document.getElementById("preview_js");
+  const frame = document.getElementById("previewFrame");
+  const reloadBtn = document.getElementById("reloadPreviewBtn");
+
+  function buildSrcdoc(html, css, js){
+    const safeHtml = html || "";
+    const safeCss = css || "";
+    const safeJs = js || "";
+
+    return `<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+${safeCss}
+</style>
+</head>
+<body>
+${safeHtml}
+<script>
+try {
+${safeJs}
+} catch (e) {
+  console.error("Erro no JS da preview:", e);
+}
+<\/script>
+</body>
+</html>`;
+  }
+
+  function renderPreview(){
+    if (!frame) return;
+
+    const html = htmlEl ? htmlEl.value : "";
+    const css = cssEl ? cssEl.value : "";
+    const js = jsEl ? jsEl.value : "";
+
+    frame.srcdoc = buildSrcdoc(html, css, js);
+  }
+
+  if (reloadBtn) {
+    reloadBtn.addEventListener("click", renderPreview);
+  }
+
+  [htmlEl, cssEl, jsEl].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("input", () => {
+      clearTimeout(el._previewTimer);
+      el._previewTimer = setTimeout(renderPreview, 350);
+    });
+  });
+
+  renderPreview();
+})();
+</script>
+
+{% endblock %}

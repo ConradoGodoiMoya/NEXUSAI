@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Criador Nexus{% endblock %}
+{% block content %}
+
+<style>
+  .twoCol{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    margin-top:14px;
+  }
+  .logItem{
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.05);
+    border-radius: var(--radius);
+    padding:14px;
+    box-shadow: var(--shadow);
+    margin-top:12px;
+  }
+  .optionGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:8px;
+  }
+  .optionCard{
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    border-radius:18px;
+    padding:14px;
+  }
+  .optionCard strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:16px;
+  }
+  .optionCard span{
+    color:var(--muted);
+    line-height:1.45;
+    font-size:14px;
+  }
+  pre{
+    margin:10px 0 0;
+    padding:12px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.22);
+    overflow:auto;
+    white-space:pre-wrap;
+    word-break:break-word;
+    color:var(--text);
+  }
+  @media (max-width: 860px){
+    .twoCol{grid-template-columns:1fr;}
+    .optionGrid{grid-template-columns:1fr;}
+  }
+</style>
+
+<div class="hero">
+  <h1>Criar qualquer IA ou um SaaS incrível</h1>
+  <p>
+    A Nexus cria tanto IAs comuns quanto SaaS premium. Depois da geração, você pode abrir a visualização em tela, editar o código e continuar refinando.
+  </p>
+
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+    <a class="btn" href="/dashboard">Dashboard</a>
+    <a class="btn" href="/agents">Minhas IAs</a>
+    <a class="btn" href="/chat">Chat</a>
+    <a class="btn" href="/saas">Meus SaaS</a>
+  </div>
+</div>
+
+<div class="twoCol">
+  <div class="panel">
+    <h3 style="margin:0 0 10px;">O que você quer criar</h3>
+
+    <form method="post" action="/builder/create" data-enter-submit="true">
+      <label for="build_type">Tipo de criação</label>
+      <select id="build_type" name="build_type" required>
+        <option value="ai">Criar IA</option>
+        <option value="saas">Criar SaaS</option>
+      </select>
+
+      <div class="optionGrid">
+        <div class="optionCard">
+          <strong>Criar IA</strong>
+          <span>Gera qualquer IA que a pessoa pedir, como chat, criador de imagens, criador de roteiros, suporte, professor e muito mais.</span>
+        </div>
+
+        <div class="optionCard">
+          <strong>Criar SaaS</strong>
+          <span>Gera SaaS completos com visual premium, preview em tela, código separado, backend, frontend e publicação.</span>
+        </div>
+      </div>
+
+      <label for="request_text">Pedido</label>
+      <textarea
+        id="request_text"
+        name="request_text"
+        placeholder="Ex: Crie um SaaS para gerar roteiros virais com landing premium escura azul e roxa, dashboard bonito, login, cadastro, backend completo, painel admin e planos pagos."
+      ></textarea>
+
+      <label for="visual_style">Estilo visual desejado</label>
+      <input
+        id="visual_style"
+        name="visual_style"
+        placeholder="Ex: escuro premium azul e roxo, glow suave, cards grandes, hero forte, dashboard moderno estilo startup"
+      />
+
+      <div class="row">
+        <div>
+          <label for="base_tone">Tom base</label>
+          <select id="base_tone" name="base_tone" required>
+            <option value="amigavel">Amigável</option>
+            <option value="formal">Formal</option>
+            <option value="direto">Direto</option>
+            <option value="professor">Professor</option>
+            <option value="motivacional">Motivacional</option>
+            <option value="tecnico">Técnico</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="criativo">Criativo</option>
+          </select>
+        </div>
+
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn primary" type="submit" style="width:100%;">Criar agora</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;color:var(--muted);font-size:13px;">
+        Dica: você pode pedir desde uma IA comum até um SaaS completo. Depois vai aparecer preview e código separados.
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin:0 0 10px;">Como a criação vai sair</h3>
+    <p style="margin:0;color:var(--muted);line-height:1.55;">
+      Primeiro a Nexus gera. Depois você abre a visualização, vê em tela real, separa do código, edita e só então publica.
+    </p>
+
+    <div style="margin-top:14px;display:grid;gap:10px;">
+      <div class="optionCard">
+        <strong>1. Gerar</strong>
+        <span>A IA monta a estrutura da IA ou do SaaS com visual forte.</span>
+      </div>
+
+      <div class="optionCard">
+        <strong>2. Visualizar</strong>
+        <span>Você vê o projeto em tela, como se fosse um computador, sem precisar ficar vendo só JSON.</span>
+      </div>
+
+      <div class="optionCard">
+        <strong>3. Editar</strong>
+        <span>O código fica separado para você ajustar sem misturar com a visualização.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3 style="margin:0 0 10px;">Últimos pedidos</h3>
+
+  {% if builds %}
+    {% for b in builds %}
+      <div class="logItem">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div style="color:var(--muted);font-size:13px;">
+            {% if b.created_at %}{{ b.created_at }}{% else %}Agora{% endif %}
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            {% if b.created_agent_id %}
+              <a class="btn" href="/agents">Ver na lista</a>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <b>Pedido:</b> <span style="color:var(--muted)">{{ b.request_text }}</span>
+        </div>
+
+        <pre>{{ b.result_json }}</pre>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="margin:0;color:var(--muted);">Nenhum pedido ainda.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

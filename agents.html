@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% block title %}Minhas IAs{% endblock %}
+{% block content %}
+
+<style>
+  .agentsShell{
+    margin-top:16px;
+  }
+
+  .agentsTop{
+    display:grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap:16px;
+    margin-bottom:16px;
+  }
+
+  .agentsHero,
+  .agentsSide,
+  .createPanel,
+  .listPanel{
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .agentsHero::before,
+  .agentsSide::before,
+  .createPanel::before,
+  .listPanel::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(380px 220px at 12% 10%, rgba(74,163,255,.13), transparent 60%),
+      radial-gradient(380px 220px at 88% 12%, rgba(139,91,255,.13), transparent 60%);
+    pointer-events:none;
+  }
+
+  .agentsHero > *,
+  .agentsSide > *,
+  .createPanel > *,
+  .listPanel > *{
+    position:relative;
+  }
+
+  .agentsHero,
+  .agentsSide{
+    padding:22px;
+  }
+
+  .agentsHero h1{
+    margin:0 0 8px;
+    font-size: clamp(26px, 3.3vw, 36px);
+  }
+
+  .agentsHero p,
+  .agentsSide p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.58;
+  }
+
+  .heroBadges{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    min-height:36px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#e4e9ff;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  .heroActions{
+    margin-top:16px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .agentsSide h3{
+    margin:0 0 10px;
+    font-size:20px;
+  }
+
+  .tipList{
+    display:grid;
+    gap:12px;
+    margin-top:16px;
+  }
+
+  .tipItem{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:14px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    background: rgba(255,255,255,.03);
+  }
+
+  .tipDot{
+    width:12px;
+    height:12px;
+    margin-top:6px;
+    border-radius:999px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    box-shadow: 0 0 14px rgba(103,117,255,.45);
+    flex-shrink:0;
+  }
+
+  .tipItem strong{
+    display:block;
+    margin-bottom:4px;
+    font-size:15px;
+  }
+
+  .tipItem span{
+    color:var(--muted);
+    line-height:1.45;
+    font-size:14px;
+  }
+
+  .createPanel,
+  .listPanel{
+    padding:18px;
+    margin-bottom:16px;
+  }
+
+  .sectionTitle{
+    margin:0 0 8px;
+    font-size:21px;
+  }
+
+  .sectionSub{
+    margin:0 0 16px;
+    color:var(--muted);
+    line-height:1.55;
+  }
+
+  .formGrid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+  }
+
+  .field.full{
+    grid-column:1 / -1;
+  }
+
+  .listHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+
+  .countTag{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#dbe4ff;
+    font-size:13px;
+    font-weight:800;
+  }
+
+  .agentGrid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:14px;
+  }
+
+  .agentCard{
+    grid-column: span 6;
+    border:1px solid rgba(255,255,255,.08);
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    border-radius:20px;
+    padding:16px;
+    box-shadow: 0 12px 26px rgba(0,0,0,.14);
+    position:relative;
+    overflow:hidden;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .agentCard::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(340px 200px at 16% 12%, rgba(74,163,255,.12), transparent 60%),
+      radial-gradient(340px 200px at 84% 16%, rgba(139,91,255,.12), transparent 60%);
+    pointer-events:none;
+  }
+
+  .agentCard > *{
+    position:relative;
+  }
+
+  .agentCard:hover{
+    transform: translateY(-3px);
+    border-color: rgba(89,168,255,.24);
+    box-shadow: 0 18px 32px rgba(33,61,155,.18);
+  }
+
+  .agentCardTop{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+
+  .agentCard h3{
+    margin:0;
+    font-size:20px;
+    line-height:1.2;
+  }
+
+  .agentDesc{
+    margin:0;
+    color:var(--muted);
+    line-height:1.55;
+  }
+
+  .agentMeta{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    padding:7px 11px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#dce3ff;
+    font-weight:700;
+    font-size:13px;
+  }
+
+  .actions{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .inlineForm{
+    display:inline-flex;
+  }
+
+  .emptyState{
+    border:1px dashed rgba(255,255,255,.14);
+    border-radius:18px;
+    padding:18px;
+    color:var(--muted);
+    line-height:1.55;
+    background: rgba(255,255,255,.02);
+  }
+
+  .fadeUpLocal{
+    animation: fadeUpLocal .5s ease both;
+  }
+
+  @keyframes fadeUpLocal{
+    from{
+      opacity:0;
+      transform: translateY(14px);
+    }
+    to{
+      opacity:1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 980px){
+    .agentsTop{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media (max-width: 860px){
+    .agentCard{
+      grid-column: span 12;
+    }
+  }
+
+  @media (max-width: 768px){
+    .createPanel,
+    .listPanel,
+    .agentsHero,
+    .agentsSide{
+      padding:16px;
+    }
+
+    .formGrid{
+      grid-template-columns:1fr;
+    }
+
+    .heroActions,
+    .actions{
+      display:grid;
+      grid-template-columns:1fr;
+    }
+
+    .heroActions .btn,
+    .actions .btn,
+    .inlineForm{
+      width:100%;
+    }
+  }
+</style>
+
+<div class="agentsShell">
+  <div class="agentsTop">
+    <section class="agentsHero fadeUpLocal">
+      <h1>Minhas IAs</h1>
+      <p>
+        Aqui fica sua biblioteca de agentes. Você pode criar novos, editar o comportamento,
+        testar em uma tela separada e ir refinando cada IA até ela ficar pronta para uso real.
+      </p>
+
+      <div class="heroBadges">
+        <div class="badge">Biblioteca de agentes</div>
+        <div class="badge">Edição de prompt</div>
+        <div class="badge">Playground de teste</div>
+      </div>
+
+      <div class="heroActions">
+        <a class="btn primary" href="/builder">Criador de IAs</a>
+        <a class="btn" href="/builder/live">Criar ao vivo</a>
+        <a class="btn" href="/dashboard">Dashboard</a>
+        <a class="btn" href="/chat">Chat</a>
+      </div>
+    </section>
+
+    <section class="agentsSide fadeUpLocal">
+      <h3>Como usar melhor essa área</h3>
+      <p>
+        O ideal é criar, testar e ajustar. Quanto mais claro estiver o objetivo do agente,
+        melhor ele responde e mais valor ele entrega.
+      </p>
+
+      <div class="tipList">
+        <div class="tipItem">
+          <div class="tipDot"></div>
+          <div>
+            <strong>Crie por função</strong>
+            <span>Separe agentes por objetivo, como vendas, suporte, estudos, análise ou criação.</span>
+          </div>
+        </div>
+
+        <div class="tipItem">
+          <div class="tipDot"></div>
+          <div>
+            <strong>Refine no editor</strong>
+            <span>Depois de criar, ajuste nome, descrição, primeira mensagem e principalmente o system prompt.</span>
+          </div>
+        </div>
+
+        <div class="tipItem">
+          <div class="tipDot"></div>
+          <div>
+            <strong>Valide no playground</strong>
+            <span>Teste situações reais para ver se a IA está clara, útil e alinhada com o que você quer.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="createPanel fadeUpLocal">
+    <h2 class="sectionTitle">Criar nova IA manualmente</h2>
+    <p class="sectionSub">
+      Monte um agente rápido por aqui ou use o criador completo para gerar uma estrutura mais avançada.
+    </p>
+
+    <form method="post" action="/agents/create" data-enter-submit="true">
+      <div class="formGrid">
+        <div class="field">
+          <label for="name">Nome</label>
+          <input id="name" name="name" placeholder="Ex: IA de Estudos" required />
+        </div>
+
+        <div class="field">
+          <label for="tone">Tom</label>
+          <select id="tone" name="tone" required>
+            <option value="amigavel">Amigável</option>
+            <option value="formal">Formal</option>
+            <option value="direto">Direto</option>
+            <option value="professor">Professor</option>
+            <option value="motivacional">Motivacional</option>
+            <option value="tecnico">Técnico</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="criativo">Criativo</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="description">Descrição</label>
+          <textarea id="description" name="description" placeholder="O que essa IA faz? Como ela deve agir?"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit">Criar IA</button>
+        <a class="btn" href="/builder">Usar criador completo</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="listPanel fadeUpLocal">
+    <div class="listHead">
+      <div>
+        <h2 class="sectionTitle" style="margin-bottom:4px;">Sua lista de agentes</h2>
+        <p class="sectionSub" style="margin:0;">Todos os agentes criados ficam reunidos aqui para editar e testar.</p>
+      </div>
+
+      <span class="countTag">
+        {% if agents %}{{ agents|length }} IA(s){% else %}0 IA(s){% endif %}
+      </span>
+    </div>
+
+    {% if agents %}
+      <div class="agentGrid">
+        {% for a in agents %}
+          <article class="agentCard">
+            <div class="agentCardTop">
+              <h3>{{ a.name }}</h3>
+            </div>
+
+            <p class="agentDesc">
+              {{ a.description or "Sem descrição." }}
+            </p>
+
+            <div class="agentMeta">
+              <span class="tag">Tom: {{ a.tone or "amigavel" }}</span>
+              {% if a.tagline %}
+                <span class="tag">{{ a.tagline }}</span>
+              {% endif %}
+              {% if a.is_public %}
+                <span class="tag">Público</span>
+              {% endif %}
+            </div>
+
+            <div class="actions">
+              <a class="btn primary" href="/agents/{{ a.id }}/play">Testar</a>
+              <a class="btn" href="/agents/{{ a.id }}/edit">Editar “código”</a>
+              <form method="post" action="/agents/{{ a.id }}/delete" class="inlineForm">
+                <button class="btn" type="submit" onclick="return confirm('Excluir esta IA?')">Excluir</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="emptyState">
+        Você ainda não criou nenhuma IA. Comece pelo criador completo ou use o formulário manual acima para montar seu primeiro agente.
+      </div>
+    {% endif %}
+  </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}Criar IA ao vivo{% endblock %}
+{% block content %}
+
+<style>
+  .terminal{
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.28);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:14px;
+    min-height: 260px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow:auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .split{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    margin-top:14px;
+  }
+  @media (max-width: 900px){
+    .split{
+      grid-template-columns:1fr;
+    }
+  }
+</style>
+
+<div class="hero">
+  <h1>Criar IA ao vivo</h1>
+  <p>Quando você iniciar, o código aparece sendo gerado e “digitado” na tela. No final, você pode editar ou testar a IA.</p>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+    <a class="btn" href="/dashboard">Dashboard</a>
+    <a class="btn" href="/agents">Minhas IAs</a>
+    <a class="btn" href="/builder">Criador normal</a>
+  </div>
+</div>
+
+<div class="panel">
+  <form id="liveForm">
+    <label>Pedido da IA</label>
+    <textarea name="request_text" id="request_text" placeholder="Ex: Crie uma IA que ajuda a vender no WhatsApp com scripts, funil simples e respostas rápidas para objeções."></textarea>
+
+    <div class="row">
+      <div>
+        <label>Tom base</label>
+        <select name="base_tone" id="base_tone">
+          <option value="amigavel">Amigável</option>
+          <option value="formal">Formal</option>
+          <option value="direto">Direto</option>
+          <option value="professor">Professor</option>
+          <option value="motivacional">Motivacional</option>
+          <option value="tecnico">Técnico</option>
+          <option value="vendedor">Vendedor</option>
+          <option value="criativo">Criativo</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button class="btn primary" id="liveSubmitBtn" type="submit" style="width:100%;">Gerar ao vivo</button>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;color:var(--muted);font-size:13px;">
+      Dica: descreva bem o objetivo e o público. Quanto melhor o pedido, melhor o system prompt.
+    </div>
+  </form>
+</div>
+
+<div class="split">
+  <div class="panel">
+    <h3 style="margin:0 0 10px;">Código sendo gerado</h3>
+    <div class="terminal" id="terminal"></div>
+    <div style="margin-top:10px;color:var(--muted);font-size:13px;">
+      Isso é JSON + system prompt do agente, para você revisar e depois editar melhor.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin:0 0 10px;">Próximos passos</h3>
+    <p style="margin:0;color:var(--muted);line-height:1.5;">
+      Quando terminar, aparecem os botões para editar o código e testar a IA.
+    </p>
+
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="btn" id="editBtn" href="#" style="display:none;">Editar código</a>
+      <a class="btn primary" id="playBtn" href="#" style="display:none;">Testar IA</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("liveForm");
+  const terminal = document.getElementById("terminal");
+  const editBtn = document.getElementById("editBtn");
+  const playBtn = document.getElementById("playBtn");
+  const submitBtn = document.getElementById("liveSubmitBtn");
+
+  let currentController = null;
+
+  function setTerminalText(t) {
+    terminal.textContent = t || "";
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function appendTerminalText(t) {
+    terminal.textContent += t || "";
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function setRunning(running) {
+    submitBtn.disabled = running;
+    submitBtn.textContent = running ? "Gerando..." : "Gerar ao vivo";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const reqText = (document.getElementById("request_text").value || "").trim();
+    if (reqText.length < 8) {
+      setTerminalText("// ERRO: explique melhor o pedido.\n");
+      return;
+    }
+
+    editBtn.style.display = "none";
+    playBtn.style.display = "none";
+    setTerminalText("");
+    setRunning(true);
+
+    if (currentController) {
+      currentController.abort();
+    }
+    currentController = new AbortController();
+
+    const fd = new FormData(form);
+
+    try {
+      const res = await fetch("/builder/live/stream", {
+        method: "POST",
+        body: fd,
+        signal: currentController.signal
+      });
+
+      if (!res.ok || !res.body) {
+        throw new Error("Falha no stream");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      function processText(text) {
+        buffer += text;
+
+        const blocks = buffer.split("\n\n");
+        buffer = blocks.pop() || "";
+
+        for (const block of blocks) {
+          const lines = block.split("\n");
+          let ev = "message";
+          let dataLine = "";
+
+          for (const line of lines) {
+            if (line.startsWith("event:")) ev = line.slice(6).trim();
+            if (line.startsWith("data:")) dataLine += line.slice(5).trim();
+          }
+
+          if (!dataLine) continue;
+
+          let data = {};
+          try {
+            data = JSON.parse(dataLine);
+          } catch {
+            data = { text: dataLine };
+          }
+
+          if (ev === "start") {
+            appendTerminalText("// " + (data.message || "Iniciando...") + "\n\n");
+          } else if (ev === "chunk") {
+            appendTerminalText(data.text || "");
+          } else if (ev === "error") {
+            appendTerminalText("\n\n// ERRO: " + (data.message || "Algo deu errado.") + "\n");
+          } else if (ev === "done") {
+            appendTerminalText("\n\n// SALVO COM SUCESSO\n");
+            if (data.edit_url) {
+              editBtn.href = data.edit_url;
+              editBtn.style.display = "inline-flex";
+            }
+            if (data.play_url) {
+              playBtn.href = data.play_url;
+              playBtn.style.display = "inline-flex";
+            }
+          }
+        }
+      }
+
+      async function read() {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          processText(decoder.decode(value, { stream: true }));
+        }
+      }
+
+      await read();
+    } catch (err) {
+      if (err.name === "AbortError") {
+        appendTerminalText("\n// ERRO: stream interrompido.\n");
+      } else {
+        appendTerminalText("\n// ERRO: não consegui abrir o stream.\n");
+      }
+    } finally {
+      setRunning(false);
+      currentController = null;
+    }
+  });
+});
+</script>
+
+{% endblock %}

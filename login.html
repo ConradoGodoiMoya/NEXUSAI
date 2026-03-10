@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block content %}
+
+<div class="authShell">
+  <div class="authGrid">
+    <section class="authPromo fadeUp">
+      <div class="authPromoInner">
+        <div class="authKicker">Nexus AI</div>
+        <h1>Uma empresa empenhada no seu desempenho digital</h1>
+        <p>
+          Entre para criar IAs, automações, conteúdos, análises e projetos prontos para crescer com mais velocidade.
+          A Nexus AI foi feita para transformar ideia em execução, com foco em desempenho, organização e resultado.
+        </p>
+
+        <div class="authList">
+          <div class="authListItem fadeUpDelay1">
+            <div class="authDot"></div>
+            <div>
+              <strong>Mais produção, menos travamento</strong>
+              <span>Ferramentas para criar, testar, ajustar e colocar suas ideias em prática sem depender de várias plataformas separadas.</span>
+            </div>
+          </div>
+
+          <div class="authListItem fadeUpDelay1">
+            <div class="authDot"></div>
+            <div>
+              <strong>Estrutura para crescer</strong>
+              <span>Da criação de agentes até conteúdos, automações e SaaS completos, tudo pensado para ajudar você a evoluir com mais consistência.</span>
+            </div>
+          </div>
+
+          <div class="authListItem fadeUpDelay2">
+            <div class="authDot"></div>
+            <div>
+              <strong>Foco em resultado real</strong>
+              <span>Não é só gerar texto. É organizar, acelerar e montar soluções com potencial de uso, venda e escala.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="authCard fadeUpDelay1">
+      <div class="authCardInner">
+        <h2>Entrar</h2>
+        <p class="authSub">Acesse sua conta para continuar seus projetos, IAs e automações.</p>
+
+        <form method="post" action="/login" data-enter-submit="true">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="seuemail@exemplo.com" required />
+
+          <label for="password">Senha</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required />
+
+          <div class="authActions">
+            <button class="btn primary" type="submit">Entrar</button>
+            <a class="btn" href="/register">Criar conta</a>
+            <a class="btn" href="/">Voltar</a>
+          </div>
+
+          <div class="authMini">
+            Ao entrar, você acessa uma plataforma pensada para criar com mais agilidade, testar melhor e crescer com mais clareza.
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}

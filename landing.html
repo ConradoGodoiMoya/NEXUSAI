@@ -1,0 +1,589 @@
+{% extends "base.html" %}
+{% block title %}Início{% endblock %}
+{% block content %}
+
+<style>
+  .landingShell{
+    margin-top:16px;
+  }
+
+  .landingHero{
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position:relative;
+    overflow:hidden;
+    padding:26px;
+  }
+
+  .landingHero::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(460px 250px at 10% 10%, rgba(74,163,255,.18), transparent 60%),
+      radial-gradient(460px 250px at 92% 14%, rgba(139,91,255,.18), transparent 60%),
+      radial-gradient(520px 280px at 50% 100%, rgba(54,211,153,.08), transparent 60%);
+    pointer-events:none;
+  }
+
+  .landingHero > *{
+    position:relative;
+  }
+
+  .landingHeroTop{
+    display:grid;
+    grid-template-columns: 1.08fr .92fr;
+    gap:18px;
+    align-items:start;
+  }
+
+  .landingKicker{
+    display:inline-flex;
+    align-items:center;
+    min-height:36px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#dfe5ff;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:14px;
+  }
+
+  .landingHero h1{
+    margin:0 0 10px;
+    font-size: clamp(30px, 4.5vw, 48px);
+    line-height:1.04;
+    max-width:12ch;
+  }
+
+  .landingHero p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.65;
+    max-width:60ch;
+  }
+
+  .heroLead{
+    margin-top:14px;
+    font-size:16px;
+  }
+
+  .typerWrap{
+    margin-top:16px;
+    min-height:30px;
+  }
+
+  .typer{
+    font-weight:800;
+    font-size: clamp(18px, 2.4vw, 24px);
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .heroActions{
+    margin-top:18px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  .kbd{
+    display:inline-flex;
+    align-items:center;
+    min-height:40px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#dbe2ff;
+    font-size:13px;
+    font-weight:700;
+    opacity:0;
+    transform: translateY(8px);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+
+  .kbd.show{
+    opacity:1;
+    transform: translateY(0);
+  }
+
+  .heroBadges{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+
+  .heroBadge{
+    display:inline-flex;
+    align-items:center;
+    min-height:38px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color:#e4e9ff;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  .heroBox{
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.04);
+    border-radius:22px;
+    padding:18px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+
+  .heroBox h3{
+    margin:0 0 8px;
+    font-size:22px;
+  }
+
+  .heroBox p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.58;
+  }
+
+  .heroMiniGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:16px;
+  }
+
+  .heroMiniCard{
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+    border-radius:18px;
+    padding:14px;
+  }
+
+  .heroMiniCard strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:15px;
+  }
+
+  .heroMiniCard span{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.45;
+  }
+
+  .showcasePanel{
+    margin-top:16px;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:18px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .showcasePanel::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(420px 240px at 12% 10%, rgba(74,163,255,.13), transparent 60%),
+      radial-gradient(420px 240px at 88% 14%, rgba(139,91,255,.13), transparent 60%);
+    pointer-events:none;
+  }
+
+  .showcasePanel > *{
+    position:relative;
+  }
+
+  .showcasePanel h2{
+    margin:0 0 8px;
+    font-size:24px;
+  }
+
+  .showcasePanel p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.58;
+  }
+
+  .showcaseGrid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:14px;
+    margin-top:16px;
+  }
+
+  .shotCard{
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,.14);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .shotCard:hover{
+    transform: translateY(-4px);
+    border-color: rgba(89,168,255,.26);
+    box-shadow: 0 18px 34px rgba(47,72,180,.20);
+  }
+
+  .shotImageWrap{
+    position:relative;
+    aspect-ratio: 16 / 10;
+    overflow:hidden;
+    background:
+      radial-gradient(340px 180px at 15% 15%, rgba(74,163,255,.25), transparent 60%),
+      radial-gradient(300px 180px at 85% 20%, rgba(139,91,255,.22), transparent 60%),
+      #0b1022;
+  }
+
+  .shotImageWrap::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: linear-gradient(180deg, transparent 40%, rgba(5,7,20,.20) 100%);
+    pointer-events:none;
+  }
+
+  .shotImage{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    filter: saturate(1.08) contrast(1.03);
+  }
+
+  .shotBody{
+    padding:14px;
+  }
+
+  .shotBody strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:16px;
+  }
+
+  .shotBody span{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.45;
+  }
+
+  .featureGrid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:14px;
+    margin-top:16px;
+  }
+
+  .featureCard{
+    grid-column: span 6;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+    border-radius: var(--radius);
+    padding:18px;
+    box-shadow: var(--shadow);
+    position:relative;
+    overflow:hidden;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .featureCard::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(360px 220px at 16% 10%, rgba(74,163,255,.14), transparent 60%),
+      radial-gradient(360px 220px at 86% 18%, rgba(139,91,255,.14), transparent 60%);
+    pointer-events:none;
+  }
+
+  .featureCard > *{
+    position:relative;
+  }
+
+  .featureCard:hover{
+    transform: translateY(-3px);
+    border-color: rgba(89,168,255,.24);
+    box-shadow: 0 18px 30px rgba(33,61,155,.18);
+  }
+
+  .featureTag{
+    display:inline-flex;
+    align-items:center;
+    min-height:30px;
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    color:#dde5ff;
+    font-size:12px;
+    font-weight:800;
+    margin-bottom:10px;
+  }
+
+  .featureCard h3{
+    margin:0 0 8px;
+    font-size:22px;
+  }
+
+  .featureCard p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.58;
+  }
+
+  .infoStrip{
+    margin-top:16px;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:18px;
+  }
+
+  .infoStrip h2{
+    margin:0 0 8px;
+    font-size:24px;
+  }
+
+  .infoStrip p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.6;
+    max-width:74ch;
+  }
+
+  .fadeUpLocal{
+    animation: fadeUpLocal .55s ease both;
+  }
+
+  @keyframes fadeUpLocal{
+    from{
+      opacity:0;
+      transform: translateY(14px);
+    }
+    to{
+      opacity:1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 980px){
+    .landingHeroTop{
+      grid-template-columns:1fr;
+    }
+
+    .showcaseGrid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media (max-width: 860px){
+    .featureCard{
+      grid-column: span 12;
+    }
+  }
+
+  @media (max-width: 640px){
+    .landingHero{
+      padding:18px;
+    }
+
+    .heroMiniGrid{
+      grid-template-columns:1fr;
+    }
+
+    .heroActions{
+      display:grid;
+      grid-template-columns:1fr;
+      align-items:stretch;
+    }
+
+    .heroActions .btn{
+      width:100%;
+    }
+  }
+</style>
+
+<div class="landingShell">
+  <section class="landingHero fadeUpLocal" data-hero="landing">
+    <div class="landingHeroTop">
+      <div>
+        <div class="landingKicker">Nexus AI</div>
+
+        <h1>Seu espaço de criação, desempenho e crescimento digital</h1>
+
+        <p class="heroLead">
+          Uma central para criar IAs, organizar ideias, gerar conteúdo, estruturar SaaS e acelerar projetos com muito mais clareza.
+        </p>
+
+        <div class="typerWrap">
+          <span class="typer" data-typer>Carregando...</span>
+        </div>
+
+        <div class="heroActions">
+          <a class="btn primary" data-continue href="{{ url_for('login_page') }}">Entrar</a>
+          <a class="btn" href="{{ url_for('register_page') }}">Criar conta</a>
+          <span class="kbd" data-hint>Pressione Enter para continuar</span>
+        </div>
+
+        <div class="heroBadges">
+          <div class="heroBadge">Chat inteligente</div>
+          <div class="heroBadge">Criação de IAs</div>
+          <div class="heroBadge">Modo SaaS</div>
+          <div class="heroBadge">Conteúdo e produtividade</div>
+        </div>
+      </div>
+
+      <div class="heroBox">
+        <h3>Mais do que ferramentas soltas</h3>
+        <p>
+          A Nexus foi pensada para quem quer sair da ideia e chegar em algo utilizável.
+          Você conversa, cria, testa, ajusta e organiza tudo em uma experiência mais profissional, rápida e forte.
+        </p>
+
+        <div class="heroMiniGrid">
+          <div class="heroMiniCard">
+            <strong>Criar com estrutura</strong>
+            <span>Monte agentes, conteúdos e fluxos com mais clareza e consistência.</span>
+          </div>
+
+          <div class="heroMiniCard">
+            <strong>Evoluir mais rápido</strong>
+            <span>Teste, refine e melhore suas criações sem se perder em várias telas.</span>
+          </div>
+
+          <div class="heroMiniCard">
+            <strong>Pensar como produto</strong>
+            <span>Use o modo SaaS para organizar soluções com frontend, backend e lógica principal.</span>
+          </div>
+
+          <div class="heroMiniCard">
+            <strong>Ter mais presença</strong>
+            <span>Visual mais forte e ambiente mais confiável para passar valor real ao cliente.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="showcasePanel fadeUpLocal">
+    <h2>Visual que combina com a Nexus</h2>
+    <p>
+      A entrada da plataforma agora ganha uma vitrine visual com imagens em tons azul, roxo e escuro para reforçar a identidade premium.
+    </p>
+
+    <div class="showcaseGrid">
+      <article class="shotCard">
+        <div class="shotImageWrap">
+          <img src="{{ url_for('static', filename='img/hero-saas-1.png') }}" alt="Dashboard futurista em azul e roxo" class="shotImage">
+        </div>
+        <div class="shotBody">
+          <strong>Dashboard premium</strong>
+          <span>Interfaces modernas com profundidade, brilho suave e cara de produto profissional.</span>
+        </div>
+      </article>
+
+      <article class="shotCard">
+        <div class="shotImageWrap">
+          <img src="{{ url_for('static', filename='img/hero-saas-2.png') }}" alt="Workspace tecnológico com tons neon" class="shotImage">
+        </div>
+        <div class="shotBody">
+          <strong>Criação com presença</strong>
+          <span>Ambiente visual forte para transmitir tecnologia, clareza e evolução de projeto.</span>
+        </div>
+      </article>
+
+      <article class="shotCard">
+        <div class="shotImageWrap">
+          <img src="{{ url_for('static', filename='img/hero-saas-3.png') }}" alt="Tela de produto de IA em cores azul e roxo" class="shotImage">
+        </div>
+        <div class="shotBody">
+          <strong>Produto com identidade</strong>
+          <span>Estilo visual alinhado com IA, SaaS e ferramentas modernas de alto valor percebido.</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="featureGrid fadeUpLocal">
+    <article class="featureCard">
+      <div class="featureTag">Conversa contínua</div>
+      <h3>Chat com histórico</h3>
+      <p>
+        Converse, continue depois e mantenha tudo salvo por usuário para não perder ideias, pedidos e ajustes importantes.
+      </p>
+    </article>
+
+    <article class="featureCard">
+      <div class="featureTag">Agentes com identidade</div>
+      <h3>IAs com personalidade</h3>
+      <p>
+        Crie agentes com tom próprio, função definida e prompt editável para moldar respostas mais úteis, mais claras e mais fortes.
+      </p>
+    </article>
+
+    <article class="featureCard">
+      <div class="featureTag">Estrutura maior</div>
+      <h3>Criação de SaaS</h3>
+      <p>
+        Vá além de um simples agente e organize soluções mais completas com páginas, backend, frontend, autenticação e lógica principal.
+      </p>
+    </article>
+
+    <article class="featureCard">
+      <div class="featureTag">Conteúdo longo</div>
+      <h3>Ebooks estruturados</h3>
+      <p>
+        Gere materiais longos com melhor organização para estudo, entrega, produto digital ou uso profissional.
+      </p>
+    </article>
+
+    <article class="featureCard">
+      <div class="featureTag">Tudo em um lugar</div>
+      <h3>Dashboard central</h3>
+      <p>
+        Entre em uma área principal com atalhos claros para criar, testar, ajustar e continuar seu trabalho com mais velocidade.
+      </p>
+    </article>
+
+    <article class="featureCard">
+      <div class="featureTag">Foco em resultado</div>
+      <h3>Uma plataforma para produzir de verdade</h3>
+      <p>
+        A proposta aqui é simples: ajudar você a criar com mais qualidade, mais organização e mais potencial de crescimento.
+      </p>
+    </article>
+  </div>
+
+  <section class="infoStrip fadeUpLocal">
+    <h2>Uma empresa empenhada no seu desempenho</h2>
+    <p>
+      A Nexus AI foi desenhada para unir produtividade, criação e evolução prática em um só ambiente.
+      Em vez de deixar você pulando entre ferramentas soltas, a plataforma concentra o que mais importa para transformar intenção em entrega.
+    </p>
+  </section>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const hint = document.querySelector("[data-hint]");
+    if (hint) {
+      setTimeout(() => hint.classList.add("show"), 250);
+    }
+  });
+</script>
+
+{% endblock %}

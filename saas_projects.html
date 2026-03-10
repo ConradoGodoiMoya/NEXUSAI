@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Meus SaaS{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>Meus SaaS</h1>
+  <p>Abra seus projetos, veja a visualização real, edite o código e publique no domínio da Nexus AI.</p>
+
+  <div class="actions">
+    <a class="btn primary" href="/builder">Criar novo</a>
+    <a class="btn" href="/dashboard">Dashboard</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h3 style="margin:0 0 10px;">Projetos</h3>
+
+  {% if projects %}
+    <div class="grid">
+      {% for p in projects %}
+        <div class="card">
+          <h3>{{ p.name }}</h3>
+          <p>{{ p.description or "Sem descrição." }}</p>
+
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+            <span class="tag">Status: {{ p.status }}</span>
+            {% if p.slug %}
+              <span class="tag">Slug: {{ p.slug }}</span>
+            {% endif %}
+          </div>
+
+          <div class="actions">
+            <a class="btn primary" href="/saas/{{ p.id }}/preview">Abrir preview</a>
+
+            <form method="post" action="/saas/{{ p.id }}/publish" style="display:inline;">
+              <button class="btn" type="submit">Publicar</button>
+            </form>
+
+            {% if p.published_url %}
+              <a class="btn" href="{{ p.published_url }}" target="_blank">Abrir publicado</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--muted);margin:0;">Nenhum projeto SaaS ainda.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

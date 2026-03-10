@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Anti-Golpe | Nexus{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>Anti-Golpe <span class="typer">Detetive</span></h1>
+  <p>Cole a mensagem, e-mail ou link suspeito. Você recebe um risco (0–100), sinais encontrados e textos prontos para responder e alertar família.</p>
+</div>
+
+<div class="grid">
+  <div class="card" style="grid-column: span 7;">
+    <h3>Conteúdo para analisar</h3>
+    <p>Cole aqui exatamente como você recebeu (incluindo link, valores e nomes).</p>
+
+    <div class="panel">
+      <label>Mensagem / Link</label>
+      <textarea id="scamText" placeholder="Ex: 'Seu pacote foi retido…' ou 'Seu banco bloqueou sua conta…'"></textarea>
+
+      <div class="actions">
+        <button class="btn primary" onclick="analyzeScam()">Analisar</button>
+        <button class="btn" onclick="fillExample()">Colar exemplo</button>
+        <button class="btn" onclick="clearAll()">Limpar</button>
+      </div>
+
+      <div id="scamErr" class="flash error" style="display:none;margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column: span 5;">
+    <h3>Resultado</h3>
+    <p>Risco, sinais e próximos passos.</p>
+
+    <div class="panel">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div id="riskPill" class="btn" style="cursor:default">Risco: —</div>
+        <div id="riskLevel" class="btn" style="cursor:default;opacity:.9">—</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Sinais de golpe</label>
+        <ul id="redFlags" style="margin:8px 0 0;padding-left:18px;color:var(--muted)"></ul>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>O que fazer agora</label>
+        <ul id="doNow" style="margin:8px 0 0;padding-left:18px;color:var(--muted)"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column: span 6;">
+    <h3>Resposta segura</h3>
+    <p>Texto pronto para você responder sem se expor.</p>
+    <div class="panel">
+      <textarea id="safeReply" readonly placeholder="Vai aparecer aqui..."></textarea>
+      <div class="actions">
+        <button class="btn" onclick="copyFrom('safeReply')">Copiar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column: span 6;">
+    <h3>Alerta para família / grupo</h3>
+    <p>Mensagem curta pra encaminhar e evitar que alguém caia.</p>
+    <div class="panel">
+      <textarea id="familyAlert" readonly placeholder="Vai aparecer aqui..."></textarea>
+      <div class="actions">
+        <button class="btn" onclick="copyFrom('familyAlert')">Copiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fillExample(){
+  document.getElementById("scamText").value =
+`🚨 BANCO SULBRAS 🚨
+Detectamos uma compra de R$ 1.987,40 às 03:12.
+Se NÃO foi você, confirme para bloquear:
+https://bancosulbras-seguranca.com/verificacao
+
+Para finalizar, informe o código SMS que você vai receber agora.`;
+}
+
+function clearAll(){
+  document.getElementById("scamText").value = "";
+  setResult(null);
+  showErr("");
+}
+
+function showErr(msg){
+  const el = document.getElementById("scamErr");
+  if(!msg){ el.style.display="none"; el.textContent=""; return; }
+  el.style.display="block"; el.textContent = msg;
+}
+
+function pillText(score){
+  if(score === null || score === undefined) return "Risco: —";
+  return "Risco: " + score + "/100";
+}
+
+function setResult(d){
+  const riskPill = document.getElementById("riskPill");
+  const riskLevel = document.getElementById("riskLevel");
+  const redFlags = document.getElementById("redFlags");
+  const doNow = document.getElementById("doNow");
+
+  const safeReply = document.getElementById("safeReply");
+  const familyAlert = document.getElementById("familyAlert");
+
+  redFlags.innerHTML = "";
+  doNow.innerHTML = "";
+
+  if(!d){
+    riskPill.textContent = "Risco: —";
+    riskLevel.textContent = "—";
+    safeReply.value = "";
+    familyAlert.value = "";
+    return;
+  }
+
+  riskPill.textContent = pillText(d.risk_score);
+  riskLevel.textContent = (d.risk_level || "—");
+
+  (d.red_flags || []).slice(0,8).forEach(x=>{
+    const li=document.createElement("li");
+    li.textContent = x;
+    redFlags.appendChild(li);
+  });
+
+  (d.what_to_do_now || []).slice(0,8).forEach(x=>{
+    const li=document.createElement("li");
+    li.textContent = x;
+    doNow.appendChild(li);
+  });
+
+  safeReply.value = d.safe_reply || "";
+  familyAlert.value = d.family_alert || "";
+}
+
+async function analyzeScam(){
+  showErr("");
+  const text = document.getElementById("scamText").value.trim();
+  if(text.length < 5){
+    showErr("Cole um conteúdo com pelo menos 5 caracteres.");
+    return;
+  }
+
+  try{
+    const r = await fetch("/scam/analyze", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({text})
+    });
+
+    const body = await r.text();
+
+    if(r.redirected){
+      window.location.href = r.url;
+      return;
+    }
+    if(!r.ok){
+      showErr("Erro (" + r.status + "): " + body);
+      return;
+    }
+
+    const data = JSON.parse(body);
+    setResult(data);
+  }catch(e){
+    showErr(String(e));
+  }
+}
+
+async function copyFrom(id){
+  const v = document.getElementById(id).value || "";
+  if(!v) return;
+  await navigator.clipboard.writeText(v);
+}
+</script>
+
+{% endblock %}
