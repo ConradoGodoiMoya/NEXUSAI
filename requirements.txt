@@ -1,0 +1,10 @@
+flask
+python-dotenv
+openai
+supabase
+postgrest
+stripe
+gunicorn
+reportlab
+requests
+Pillow
