@@ -1,54 +1,26 @@
-from robotics.connectors.kicad_connector import KiCadConnector
-from robotics.connectors.librepcb_connector import LibrePCBConnector
-from robotics.connectors.sparkfun_connector import SparkFunConnector
-from robotics.connectors.ros_connector import ROSConnector
-from robotics.services.db import get_conn
-from robotics.services.part_indexer import clear_source, insert_parts
+from services.db import get_conn
+from services.utils import dumps
 
-CONNECTORS = {
-    "kicad": KiCadConnector,
-    "librepcb": LibrePCBConnector,
-    "sparkfun": SparkFunConnector,
-    "ros": ROSConnector,
-}
-
-
-def log_import(source: str, status: str, details: str = ""):
+def clear_source(source: str):
     with get_conn() as conn:
-        conn.execute(
-            "INSERT INTO robotics_import_runs (source, status, details) VALUES (?, ?, ?)",
-            (source, status, details),
-        )
+        conn.execute("DELETE FROM parts WHERE source = ?", (source,))
 
-
-def run_import(source: str) -> dict:
-    connector_cls = CONNECTORS[source]
-    connector = connector_cls()
-
-    try:
-        log_import(source, "running", "Iniciando importação")
-        local_path = connector.fetch()
-        items = connector.scan(local_path)
-
-        clear_source(source)
-        insert_parts(items)
-
-        result = {
-            "ok": True,
-            "source": source,
-            "imported": len(items),
-            "local_path": local_path,
-        }
-        log_import(source, "success", str(result))
-        return result
-    except Exception as e:
-        result = {"ok": False, "source": source, "error": str(e)}
-        log_import(source, "error", str(result))
-        return result
-
-
-def run_import_all() -> list[dict]:
-    results = []
-    for source in CONNECTORS:
-        results.append(run_import(source))
-    return results
+def insert_parts(parts: list[dict]):
+    with get_conn() as conn:
+        conn.executemany("""
+            INSERT INTO parts (
+                source, source_path, name, category, extension, tags, metadata_json, file_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, [
+            (
+                p["source"],
+                p["source_path"],
+                p["name"],
+                p.get("category"),
+                p.get("extension"),
+                dumps(p.get("tags", [])),
+                dumps(p.get("metadata", {})),
+                p.get("file_count", 1),
+            )
+            for p in parts
+        ])

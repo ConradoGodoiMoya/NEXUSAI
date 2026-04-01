@@ -1,19 +1,14 @@
-from robotics.services.db import get_conn
-from robotics.services.utils import dumps
-
+from services.db import get_conn
+from services.utils import dumps
 
 def clear_source(source: str):
     with get_conn() as conn:
-        conn.execute("DELETE FROM robotics_parts WHERE source = ?", (source,))
-
+        conn.execute("DELETE FROM parts WHERE source = ?", (source,))
 
 def insert_parts(parts: list[dict]):
-    if not parts:
-        return
-
     with get_conn() as conn:
         conn.executemany("""
-            INSERT INTO robotics_parts (
+            INSERT INTO parts (
                 source, source_path, name, category, extension, tags, metadata_json, file_count
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, [

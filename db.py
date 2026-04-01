@@ -1,29 +1,11 @@
-import os
 import sqlite3
 from contextlib import contextmanager
+from config import DB_PATH
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-DATA_DIR = os.path.join(BASE_DIR, "robotics_data")
-IMPORTS_DIR = os.path.join(DATA_DIR, "imports")
-CACHE_DIR = os.path.join(DATA_DIR, "cache")
-DB_PATH = os.path.join(DATA_DIR, "robotics.db")
-
-
-def ensure_dir(path: str):
-    if os.path.exists(path) and not os.path.isdir(path):
-        raise RuntimeError(f"O caminho '{path}' existe mas não é pasta.")
-    os.makedirs(path, exist_ok=True)
-
-
-ensure_dir(DATA_DIR)
-ensure_dir(IMPORTS_DIR)
-ensure_dir(CACHE_DIR)
-
-
-def init_robotics_db():
+def init_db():
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("""
-        CREATE TABLE IF NOT EXISTS robotics_parts (
+        CREATE TABLE IF NOT EXISTS parts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source TEXT NOT NULL,
             source_path TEXT NOT NULL,
@@ -37,7 +19,7 @@ def init_robotics_db():
         )
         """)
         conn.execute("""
-        CREATE TABLE IF NOT EXISTS robotics_builds (
+        CREATE TABLE IF NOT EXISTS robot_builds (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prompt TEXT NOT NULL,
             title TEXT,
@@ -50,7 +32,7 @@ def init_robotics_db():
         )
         """)
         conn.execute("""
-        CREATE TABLE IF NOT EXISTS robotics_import_runs (
+        CREATE TABLE IF NOT EXISTS import_runs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source TEXT NOT NULL,
             status TEXT NOT NULL,
@@ -59,7 +41,6 @@ def init_robotics_db():
         )
         """)
         conn.commit()
-
 
 @contextmanager
 def get_conn():

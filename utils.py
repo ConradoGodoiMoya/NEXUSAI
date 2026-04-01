@@ -1,14 +1,9 @@
-import json
 import os
+import json
 import re
-
-
-THREE_D_EXTENSIONS = {".step", ".stp", ".wrl", ".wrz", ".stl", ".dae", ".obj"}
-
 
 def dumps(data) -> str:
     return json.dumps(data, ensure_ascii=False)
-
 
 def loads(text: str, default=None):
     if not text:
@@ -18,11 +13,9 @@ def loads(text: str, default=None):
     except Exception:
         return default if default is not None else {}
 
-
 def safe_name_from_path(path: str) -> str:
     base = os.path.basename(path)
     return os.path.splitext(base)[0].replace("_", " ").replace("-", " ").strip()
-
 
 def infer_category(name: str) -> str:
     text = name.lower()
@@ -48,15 +41,9 @@ def infer_category(name: str) -> str:
     for category, keywords in rules.items():
         if any(k in text for k in keywords):
             return category
-
     return "unknown"
-
 
 def split_tags(name: str):
     cleaned = re.sub(r"[^a-zA-Z0-9_\- ]", " ", name.lower())
     parts = [p for p in cleaned.replace("-", " ").replace("_", " ").split() if len(p) > 1]
     return sorted(set(parts))
-
-
-def is_3d_file(ext: str) -> bool:
-    return (ext or "").lower() in THREE_D_EXTENSIONS
