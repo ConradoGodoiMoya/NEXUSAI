@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Robotics Builder v3</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root{
+      --bg:#040814;
+      --bg2:#091224;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.11);
+
+      --text:#eef5ff;
+      --muted:#9ab0cb;
+
+      --cyan:#58e7ff;
+      --blue:#4c84ff;
+      --violet:#9165ff;
+      --green:#49f3b6;
+      --red:#ff6b88;
+      --yellow:#ffd166;
+
+      --shadow:0 0 26px rgba(88,231,255,.14);
+      --shadow-strong:0 0 40px rgba(88,231,255,.22);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(88,231,255,.10), transparent 20%),
+        radial-gradient(circle at 88% 18%, rgba(145,101,255,.10), transparent 20%),
+        linear-gradient(180deg, #030611 0%, #081122 45%, #030611 100%);
+      color: var(--text);
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 320px 1fr 380px;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .panel {
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 26px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .left-panel, .right-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel-header {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.02);
+    }
+
+    .logo {
+      font-size: 1.18rem;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .logo span {
+      color: var(--cyan);
+      text-shadow: 0 0 16px rgba(88,231,255,.45);
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 14px 18px 0;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-size: .92rem;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(88,231,255,.28);
+      color: var(--cyan);
+      box-shadow: 0 0 18px rgba(88,231,255,.10);
+    }
+
+    .btn.primary {
+      color: #02111c;
+      border: none;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      box-shadow: 0 0 24px rgba(88,231,255,.18);
+    }
+
+    .btn.primary:hover {
+      color: #02111c;
+      box-shadow: 0 0 30px rgba(88,231,255,.28);
+    }
+
+    .btn.danger:hover {
+      color: #ff95a9;
+      border-color: rgba(255,107,136,.35);
+      box-shadow: 0 0 18px rgba(255,107,136,.10);
+    }
+
+    .section-title {
+      font-size: .95rem;
+      font-weight: 700;
+      padding: 18px 18px 10px;
+      color: white;
+    }
+
+    .parts-grid {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      overflow: auto;
+    }
+
+    .part-card {
+      min-height: 118px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      cursor: pointer;
+      transition: .22s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .part-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(88,231,255,.28);
+      box-shadow: 0 0 18px rgba(88,231,255,.10);
+    }
+
+    .part-visual {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .3px;
+      margin-bottom: 10px;
+    }
+
+    .part-name {
+      color: white;
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .part-desc {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .83rem;
+      line-height: 1.45;
+    }
+
+    .viewport-panel {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, rgba(88,231,255,.05), transparent 35%),
+        linear-gradient(180deg, rgba(5,10,20,.84), rgba(4,8,17,.92));
+    }
+
+    #builderCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #builderCanvas.dragging {
+      cursor: grabbing;
+    }
+
+    .hud-top {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+      flex-wrap: wrap;
+    }
+
+    .hud-chip {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(5,14,28,.62);
+      border: 1px solid rgba(88,231,255,.18);
+      backdrop-filter: blur(12px);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-size: .9rem;
+    }
+
+    .hud-chip strong {
+      color: var(--cyan);
+    }
+
+    .hud-bottom {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .hint-box,
+    .selection-box {
+      pointer-events: auto;
+      padding: 14px 16px;
+      border-radius: 20px;
+      background: rgba(5,14,28,.62);
+      backdrop-filter: blur(12px);
+    }
+
+    .hint-box {
+      max-width: 520px;
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+
+    .hint-box b { color: white; }
+
+    .selection-box {
+      min-width: 280px;
+      border: 1px solid rgba(88,231,255,.18);
+      box-shadow: var(--shadow);
+    }
+
+    .selection-title {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .selection-name {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .right-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 14px 18px 0;
+    }
+
+    .tab-btn {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 8px;
+      font-size: .86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      border-color: rgba(88,231,255,.26);
+      color: var(--cyan);
+      box-shadow: 0 0 18px rgba(88,231,255,.08);
+    }
+
+    .tab-content {
+      padding: 18px;
+      overflow: auto;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    .info-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 14px;
+    }
+
+    .info-card h3 {
+      font-size: .95rem;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info-row b {
+      color: white;
+      font-weight: 700;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    .field label {
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: white;
+      outline: none;
+      resize: vertical;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .field textarea {
+      min-height: 100px;
+      font-family: inherit;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: rgba(88,231,255,.34);
+      box-shadow: 0 0 0 3px rgba(88,231,255,.08);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(88,231,255,.06);
+      border: 1px solid rgba(88,231,255,.16);
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+
+    .status b { color: white; }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .msg {
+      padding: 12px 14px;
+      border-radius: 18px;
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: rgba(88,231,255,.10);
+      border: 1px solid rgba(88,231,255,.18);
+      color: white;
+      max-width: 88%;
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      max-width: 94%;
+    }
+
+    .msg.ai b { color: white; }
+
+    .connections-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .connection-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .connection-item b {
+      color: white;
+    }
+
+    @media (max-width: 1320px) {
+      .app {
+        grid-template-columns: 300px 1fr 350px;
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 300px 1fr 460px;
+      }
+
+      .parts-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 780px) {
+      .app {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .parts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .right-tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hud-bottom {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .selection-box {
+        min-width: 0;
+      }
+
+      .hint-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel left-panel">
+      <div class="panel-header">
+        <div class="logo">Nexus <span>Robotics</span> Builder v3</div>
+        <div class="subtitle">
+          Agora com grupos conectados, simulação de movimento e chat ligado ao backend.
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" id="saveBtn">Salvar</button>
+        <button class="btn" id="loadBtn">Carregar</button>
+        <button class="btn" id="exportBtn">Exportar JSON</button>
+        <button class="btn" id="importBtn">Importar JSON</button>
+        <button class="btn" id="simulateBtn">Simular</button>
+        <button class="btn danger" id="clearBtn">Limpar</button>
+      </div>
+
+      <div class="section-title">Peças disponíveis</div>
+
+      <div class="parts-grid" id="partsGrid">
+        <div class="part-card" data-part="board">
+          <div class="part-visual">PLACA</div>
+          <div><div class="part-name">Controladora</div><div class="part-desc">Base lógica principal para encaixar módulos.</div></div>
+        </div>
+        <div class="part-card" data-part="servo">
+          <div class="part-visual">SERVO</div>
+          <div><div class="part-name">Servo motor</div><div class="part-desc">Movimento angular para juntas e mecanismos.</div></div>
+        </div>
+        <div class="part-card" data-part="sensor">
+          <div class="part-visual">SENSOR</div>
+          <div><div class="part-name">Sensor ultrassônico</div><div class="part-desc">Leitura de distância e obstáculos.</div></div>
+        </div>
+        <div class="part-card" data-part="wheel">
+          <div class="part-visual">RODA</div>
+          <div><div class="part-name">Roda motriz</div><div class="part-desc">Locomoção de bases móveis.</div></div>
+        </div>
+        <div class="part-card" data-part="arm">
+          <div class="part-visual">BRAÇO</div>
+          <div><div class="part-name">Braço robótico</div><div class="part-desc">Estrutura para automação e manipulação.</div></div>
+        </div>
+        <div class="part-card" data-part="claw">
+          <div class="part-visual">GARRA</div>
+          <div><div class="part-name">Garra</div><div class="part-desc">Terminal para segurar objetos.</div></div>
+        </div>
+        <div class="part-card" data-part="chip">
+          <div class="part-visual">CHIP</div>
+          <div><div class="part-name">Módulo chip</div><div class="part-desc">Componente eletrônico visual.</div></div>
+        </div>
+        <div class="part-card" data-part="bot">
+          <div class="part-visual">BASE</div>
+          <div><div class="part-name">Base móvel</div><div class="part-desc">Plataforma com rodas para robôs autônomos.</div></div>
+        </div>
+        <div class="part-card" data-part="drone">
+          <div class="part-visual">DRONE</div>
+          <div><div class="part-name">Módulo aéreo</div><div class="part-desc">Corpo de drone com braços e hélices.</div></div>
+        </div>
+        <div class="part-card" data-part="connector">
+          <div class="part-visual">I/O</div>
+          <div><div class="part-name">Conector</div><div class="part-desc">Pinos e encaixe eletrônico visual.</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel viewport-panel">
+      <canvas id="builderCanvas"></canvas>
+
+      <div class="hud-top">
+        <div class="hud-chip">Modo: <strong>Montagem 3D</strong></div>
+        <div class="hud-chip">Snap: <strong id="snapValue">0.5</strong></div>
+        <div class="hud-chip">Energia: <strong id="energyState">offline</strong></div>
+        <div class="hud-chip">Simulação: <strong id="simState">parada</strong></div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="hint-box">
+          <b>Controles:</b> clique para selecionar, arraste para mover, <b>Q/E</b> gira, <b>R/F</b> sobe/desce, <b>Delete</b> apaga, <b>Ctrl+D</b> duplica, scroll aproxima. Quando uma peça encaixa, o conjunto conectado passa a mover junto.
+        </div>
+        <div class="selection-box">
+          <div class="selection-title">Peça selecionada</div>
+          <div class="selection-name" id="selectedName">Nenhuma</div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel right-panel">
+      <div class="panel-header">
+        <div class="logo">Inspector <span>AI</span></div>
+        <div class="subtitle">
+          Ajuste a peça atual, veja grupos conectados, exporte o projeto e fale com a IA.
+        </div>
+      </div>
+
+      <div class="right-tabs">
+        <button class="tab-btn active" data-tab="inspector">Inspector</button>
+        <button class="tab-btn" data-tab="connections">Conexões</button>
+        <button class="tab-btn" data-tab="project">Projeto</button>
+        <button class="tab-btn" data-tab="chat">Chat</button>
+      </div>
+
+      <div class="tab-content active" id="tab-inspector">
+        <div class="info-card">
+          <h3>Resumo</h3>
+          <div class="info-row"><span>Projeto</span><b id="projectNameLabel">Nexus Builder</b></div>
+          <div class="info-row"><span>Peças</span><b id="pieceCount">0</b></div>
+          <div class="info-row"><span>Selecionada</span><b id="selectionSummary">Nenhuma</b></div>
+          <div class="info-row"><span>Grupo conectado</span><b id="assemblySize">0</b></div>
+        </div>
+
+        <div class="info-card">
+          <h3>Transformação</h3>
+          <div class="field"><label for="posX">Posição X</label><input id="posX" type="number" step="0.5"></div>
+          <div class="field"><label for="posY">Altura Y</label><input id="posY" type="number" step="0.5"></div>
+          <div class="field"><label for="posZ">Posição Z</label><input id="posZ" type="number" step="0.5"></div>
+          <div class="field"><label for="rotY">Rotação Y</label><input id="rotY" type="number" step="15"></div>
+          <div class="grid-2">
+            <button class="btn" id="applyTransformBtn">Aplicar</button>
+            <button class="btn" id="focusBtn">Focar peça</button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>Ações da peça</h3>
+          <div class="grid-2">
+            <button class="btn" id="duplicateBtn">Duplicar</button>
+            <button class="btn danger" id="deleteBtn">Excluir</button>
+          </div>
+        </div>
+
+        <div class="status" id="statusBox">
+          <b>Status:</b> pronto para montar. Clique em uma peça para adicionar ao cenário.
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-connections">
+        <div class="info-card">
+          <h3>Rede do robô</h3>
+          <div class="info-row"><span>Conexões detectadas</span><b id="connectionCount">0</b></div>
+          <div class="info-row"><span>Sinal</span><b id="signalState">inativo</b></div>
+          <div class="info-row"><span>Energia</span><b id="powerState">desligada</b></div>
+        </div>
+
+        <div class="connections-list" id="connectionsList">
+          <div class="connection-item">Nenhuma conexão encontrada ainda.</div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-project">
+        <div class="info-card">
+          <h3>Projeto</h3>
+          <div class="field">
+            <label for="robotName">Nome do robô</label>
+            <input id="robotName" type="text" placeholder="Ex.: Nexus Courier 01">
+          </div>
+          <div class="field">
+            <label for="robotGoal">Objetivo</label>
+            <input id="robotGoal" type="text" placeholder="Ex.: entrega autônoma">
+          </div>
+          <div class="field">
+            <label for="robotNotes">Notas</label>
+            <textarea id="robotNotes" placeholder="Descreva a função, sensores, locomoção e ideias do robô."></textarea>
+          </div>
+          <div class="grid-2">
+            <button class="btn" id="applyProjectMetaBtn">Salvar dados</button>
+            <button class="btn" id="copyJsonBtn">Copiar JSON</button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>Importar / Exportar</h3>
+          <div class="field">
+            <label for="jsonBox">JSON do projeto</label>
+            <textarea id="jsonBox" placeholder="O JSON exportado aparece aqui. Também pode colar JSON aqui e clicar em importar JSON."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-chat">
+        <div class="info-card">
+          <h3>Assistente de montagem</h3>
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg ai"><b>Nexus AI:</b> Posso analisar sua montagem usando o backend do Flask. Pergunte algo como “esse robô serve para entrega?” ou “o que está faltando na minha montagem?”.</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="field">
+            <label for="chatInput">Mensagem</label>
+            <textarea id="chatInput" placeholder="Ex.: esse robô está bom para fábrica?"></textarea>
+          </div>
+          <button class="btn primary" id="sendChatBtn">Enviar</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+    const STORAGE_KEY = "nexus_robotics_builder_v3";
+    const GRID_SNAP = 0.5;
+    const CONNECT_DISTANCE = 1.1;
+
+    const canvas = document.getElementById("builderCanvas");
+    const partsGrid = document.getElementById("partsGrid");
+    const selectedName = document.getElementById("selectedName");
+    const selectionSummary = document.getElementById("selectionSummary");
+    const pieceCount = document.getElementById("pieceCount");
+    const snapValue = document.getElementById("snapValue");
+    const energyState = document.getElementById("energyState");
+    const statusBox = document.getElementById("statusBox");
+    const simState = document.getElementById("simState");
+    const assemblySize = document.getElementById("assemblySize");
+
+    const posX = document.getElementById("posX");
+    const posY = document.getElementById("posY");
+    const posZ = document.getElementById("posZ");
+    const rotY = document.getElementById("rotY");
+
+    const saveBtn = document.getElementById("saveBtn");
+    const loadBtn = document.getElementById("loadBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const duplicateBtn = document.getElementById("duplicateBtn");
+    const applyTransformBtn = document.getElementById("applyTransformBtn");
+    const focusBtn = document.getElementById("focusBtn");
+    const simulateBtn = document.getElementById("simulateBtn");
+    const applyProjectMetaBtn = document.getElementById("applyProjectMetaBtn");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
+
+    const robotName = document.getElementById("robotName");
+    const robotGoal = document.getElementById("robotGoal");
+    const robotNotes = document.getElementById("robotNotes");
+    const projectNameLabel = document.getElementById("projectNameLabel");
+    const jsonBox = document.getElementById("jsonBox");
+
+    const connectionCount = document.getElementById("connectionCount");
+    const signalState = document.getElementById("signalState");
+    const powerState = document.getElementById("powerState");
+    const connectionsList = document.getElementById("connectionsList");
+
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const sendChatBtn = document.getElementById("sendChatBtn");
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = {
+      inspector: document.getElementById("tab-inspector"),
+      connections: document.getElementById("tab-connections"),
+      project: document.getElementById("tab-project"),
+      chat: document.getElementById("tab-chat")
+    };
+
+    snapValue.textContent = GRID_SNAP.toFixed(1);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x09111f, 0.03);
+
+    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 1000);
+    camera.position.set(8, 8, 10);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.target.set(0, 0.6, 0);
+    controls.minDistance = 4;
+    controls.maxDistance = 40;
+    controls.maxPolarAngle = Math.PI / 2.08;
+
+    const ambient = new THREE.HemisphereLight(0x8bdcff, 0x091018, 1.2);
+    scene.add(ambient);
+
+    const light1 = new THREE.DirectionalLight(0x58e7ff, 2.5);
+    light1.position.set(8, 12, 6);
+    scene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0x9165ff, 1.8);
+    light2.position.set(-10, 8, -4);
+    scene.add(light2);
+
+    const point = new THREE.PointLight(0x49f3b6, 1.6, 40, 2);
+    point.position.set(0, 6, 0);
+    scene.add(point);
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const effectsGroup = new THREE.Group();
+    scene.add(effectsGroup);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x07111f,
+        roughness: 0.9,
+        metalness: 0.12,
+        transparent: true,
+        opacity: 0.95
+      })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(80, 160, 0x2ddcff, 0x17405d);
+    grid.position.y = 0.001;
+    scene.add(grid);
+
+    const floorRing = new THREE.Mesh(
+      new THREE.RingGeometry(1.9, 2.4, 80),
+      new THREE.MeshBasicMaterial({
+        color: 0x58e7ff,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.08
+      })
+    );
+    floorRing.rotation.x = -Math.PI / 2;
+    floorRing.position.y = 0.01;
+    scene.add(floorRing);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const sceneObjects = [];
+    const connections = [];
+
+    let selected = null;
+    let dragging = false;
+    let dragOffset = new THREE.Vector3();
+    let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    let dragPoint = new THREE.Vector3();
+    let dragAssemblyIds = [];
+    let dragStartPositions = new Map();
+
+    let simulationRunning = false;
+    let simulationTime = 0;
+
+    const projectMeta = {
+      name: "Nexus Builder",
+      goal: "",
+      notes: ""
+    };
+
+    const materials = {
+      cyan: new THREE.MeshPhysicalMaterial({
+        color: 0x58e7ff,
+        emissive: 0x0d8ea8,
+        emissiveIntensity: 0.34,
+        roughness: 0.18,
+        metalness: 0.88
+      }),
+      blue: new THREE.MeshPhysicalMaterial({
+        color: 0x4c84ff,
+        emissive: 0x173c9e,
+        emissiveIntensity: 0.24,
+        roughness: 0.2,
+        metalness: 0.84
+      }),
+      violet: new THREE.MeshPhysicalMaterial({
+        color: 0x9165ff,
+        emissive: 0x4327a3,
+        emissiveIntensity: 0.22,
+        roughness: 0.22,
+        metalness: 0.82
+      }),
+      green: new THREE.MeshPhysicalMaterial({
+        color: 0x49f3b6,
+        emissive: 0x157c62,
+        emissiveIntensity: 0.22,
+        roughness: 0.2,
+        metalness: 0.74
+      }),
+      dark: new THREE.MeshPhysicalMaterial({
+        color: 0x101a2b,
+        emissive: 0x09111a,
+        emissiveIntensity: 0.08,
+        roughness: 0.34,
+        metalness: 0.68
+      }),
+      yellow: new THREE.MeshPhysicalMaterial({
+        color: 0xffd166,
+        emissive: 0x6f5510,
+        emissiveIntensity: 0.26,
+        roughness: 0.22,
+        metalness: 0.75
+      })
+    };
+
+    const connectionLines = [];
+    const connectorVisuals = [];
+
+    function uuid() {
+      return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    }
+
+    function makeConnectorMarker(x, y, z, kind, name) {
+      const marker = new THREE.Object3D();
+      marker.position.set(x, y, z);
+      marker.userData.kind = kind;
+      marker.userData.name = name;
+      return marker;
+    }
+
+    function attachConnectors(group, points) {
+      group.userData.connectors = points.map((p) => {
+        const marker = makeConnectorMarker(p.x, p.y, p.z, p.kind, p.name || p.kind);
+        group.add(marker);
+        return marker;
+      });
+    }
+
+    function createBoard() {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.22, 1.5), materials.green);
+      g.add(base);
+
+      const chip = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.16, 0.7), materials.dark);
+      chip.position.y = 0.18;
+      g.add(chip);
+
+      for (let i = -4; i <= 4; i++) {
+        const pin = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.08, 0.18), materials.cyan);
+        pin.position.set(i * 0.24, 0.1, 0.78);
+        g.add(pin);
+        const pin2 = pin.clone();
+        pin2.position.z = -0.78;
+        g.add(pin2);
+      }
+
+      g.userData.defaultHeight = 0.11;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: 0.2, z: 0.9, kind: "io", name: "io-front" },
+        { x: 0, y: 0.2, z: -0.9, kind: "io", name: "io-back" },
+        { x: 1.2, y: 0.12, z: 0, kind: "power", name: "power-right" },
+        { x: -1.2, y: 0.12, z: 0, kind: "power", name: "power-left" },
+        { x: 0, y: 0.22, z: 0, kind: "mount", name: "mount-top" }
+      ]);
+      return g;
+    }
+
+    function createServo() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.4, 0.8), materials.dark);
+      g.add(body);
+
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.24, 30), materials.cyan);
+      cap.rotation.x = Math.PI / 2;
+      cap.position.y = 0.82;
+      g.add(cap);
+
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.1, 0.14), materials.blue);
+      arm.position.y = 0.95;
+      g.add(arm);
+
+      g.userData.defaultHeight = 0.7;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: -0.7, z: 0, kind: "mount", name: "servo-base" },
+        { x: 0.55, y: 0.95, z: 0, kind: "motion", name: "servo-arm-end" },
+        { x: -0.55, y: 0.95, z: 0, kind: "motion", name: "servo-arm-start" }
+      ]);
+      return g;
+    }
+
+    function createSensor() {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.2, 0.7), materials.blue);
+      g.add(base);
+
+      const eye1 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.2, 24), materials.dark);
+      eye1.rotation.x = Math.PI / 2;
+      eye1.position.set(-0.38, 0.1, 0);
+      g.add(eye1);
+
+      const eye2 = eye1.clone();
+      eye2.position.x = 0.38;
+      g.add(eye2);
+
+      g.userData.defaultHeight = 0.1;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: 0.1, z: -0.45, kind: "io", name: "sensor-back" },
+        { x: 0, y: 0.1, z: 0.45, kind: "sense", name: "sensor-front" }
+      ]);
+      return g;
+    }
+
+    function createWheel() {
+      const g = new THREE.Group();
+      const tire = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.18, 20, 40), materials.dark);
+      tire.rotation.y = Math.PI / 2;
+      g.add(tire);
+
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.25, 28), materials.cyan);
+      hub.rotation.z = Math.PI / 2;
+      g.add(hub);
+
+      g.userData.defaultHeight = 0.6;
+      g.userData.power = true;
+      g.userData.signal = false;
+      attachConnectors(g, [
+        { x: 0, y: 0, z: 0, kind: "axle", name: "wheel-axle" }
+      ]);
+      return g;
+    }
+
+    function createArm() {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.3, 28), materials.dark);
+      g.add(base);
+
+      const joint = new THREE.Mesh(new THREE.SphereGeometry(0.18, 20, 20), materials.cyan);
+      joint.position.y = 0.24;
+      g.add(joint);
+
+      const seg1 = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 1.4, 8, 14), materials.blue);
+      seg1.position.set(0.5, 0.88, 0);
+      seg1.rotation.z = -Math.PI / 4.5;
+      g.add(seg1);
+
+      const joint2 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 20, 20), materials.violet);
+      joint2.position.set(0.92, 1.3, 0);
+      g.add(joint2);
+
+      const seg2 = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 1.0, 8, 14), materials.cyan);
+      seg2.position.set(1.28, 1.65, 0);
+      seg2.rotation.z = -Math.PI / 3.1;
+      g.add(seg2);
+
+      g.userData.defaultHeight = 0.15;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: 0.15, z: 0, kind: "mount", name: "arm-base" },
+        { x: 1.6, y: 1.9, z: 0, kind: "tool", name: "arm-tip" }
+      ]);
+      return g;
+    }
+
+    function createClaw() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.2, 0.2), materials.dark);
+      g.add(body);
+
+      const finger1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.34, 0.08), materials.green);
+      finger1.position.set(0.16, 0.18, 0.08);
+      finger1.rotation.z = 0.35;
+      g.add(finger1);
+
+      const finger2 = finger1.clone();
+      finger2.position.z = -0.08;
+      finger2.rotation.z = -0.05;
+      g.add(finger2);
+
+      g.userData.defaultHeight = 0.1;
+      g.userData.power = false;
+      g.userData.signal = false;
+      attachConnectors(g, [
+        { x: 0, y: -0.1, z: 0, kind: "tool", name: "claw-base" }
+      ]);
+      return g;
+    }
+
+    function createChip() {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.22, 1.15), materials.dark);
+      g.add(base);
+
+      const core = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.5), materials.violet);
+      core.position.y = 0.15;
+      g.add(core);
+
+      g.userData.defaultHeight = 0.11;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: 0.1, z: 0.58, kind: "io", name: "chip-front" },
+        { x: 0, y: 0.1, z: -0.58, kind: "io", name: "chip-back" }
+      ]);
+      return g;
+    }
+
+    function createBot() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.42, 1.4), materials.dark);
+      g.add(body);
+
+      const top = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.28, 0.95), materials.cyan);
+      top.position.y = 0.35;
+      g.add(top);
+
+      const wheelPositions = [
+        [-0.78, -0.16, 0.62], [0.78, -0.16, 0.62],
+        [-0.78, -0.16, -0.62], [0.78, -0.16, -0.62]
+      ];
+
+      wheelPositions.forEach(([x, y, z]) => {
+        const w = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.08, 14, 28), materials.blue);
+        w.rotation.y = Math.PI / 2;
+        w.position.set(x, y, z);
+        g.add(w);
+      });
+
+      g.userData.defaultHeight = 0.21;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: 0.35, z: 0, kind: "mount", name: "bot-top" },
+        { x: 1.15, y: 0.2, z: 0, kind: "axle", name: "bot-right-axle" },
+        { x: -1.15, y: 0.2, z: 0, kind: "axle", name: "bot-left-axle" },
+        { x: 0, y: 0.2, z: 0.7, kind: "io", name: "bot-front-io" },
+        { x: 0, y: 0.2, z: -0.7, kind: "io", name: "bot-back-io" }
+      ]);
+      return g;
+    }
+
+    function createDrone() {
+      const g = new THREE.Group();
+      const core = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.25, 24), materials.dark);
+      g.add(core);
+
+      for (let i = 0; i < 4; i++) {
+        const arm = new THREE.Mesh(
+          new THREE.BoxGeometry(1.1, 0.08, 0.08),
+          i % 2 === 0 ? materials.cyan : materials.blue
+        );
+        arm.rotation.y = i * (Math.PI / 2) + Math.PI / 4;
+        g.add(arm);
+
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.1, 18), materials.violet);
+        hub.position.set(
+          Math.cos(i * (Math.PI / 2) + Math.PI / 4) * 0.58,
+          0,
+          Math.sin(i * (Math.PI / 2) + Math.PI / 4) * 0.58
+        );
+        g.add(hub);
+      }
+
+      g.userData.defaultHeight = 0.12;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0, y: -0.1, z: 0, kind: "mount", name: "drone-base" }
+      ]);
+      return g;
+    }
+
+    function createConnector() {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.28, 0.7), materials.dark);
+      g.add(body);
+
+      for (let i = -3; i <= 3; i++) {
+        const pin = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.18), materials.cyan);
+        pin.position.set(i * 0.15, 0.14, 0.18);
+        g.add(pin);
+        const pin2 = pin.clone();
+        pin2.position.z = -0.18;
+        g.add(pin2);
+      }
+
+      g.userData.defaultHeight = 0.14;
+      g.userData.power = true;
+      g.userData.signal = true;
+      attachConnectors(g, [
+        { x: 0.65, y: 0.14, z: 0, kind: "power", name: "connector-power" },
+        { x: -0.65, y: 0.14, z: 0, kind: "io", name: "connector-io" }
+      ]);
+      return g;
+    }
+
+    const partFactories = {
+      board: { label: "Controladora", build: createBoard },
+      servo: { label: "Servo motor", build: createServo },
+      sensor: { label: "Sensor ultrassônico", build: createSensor },
+      wheel: { label: "Roda motriz", build: createWheel },
+      arm: { label: "Braço robótico", build: createArm },
+      claw: { label: "Garra", build: createClaw },
+      chip: { label: "Módulo chip", build: createChip },
+      bot: { label: "Base móvel", build: createBot },
+      drone: { label: "Módulo aéreo", build: createDrone },
+      connector: { label: "Conector", build: createConnector }
+    };
+
+    function snap(n) {
+      return Math.round(n / GRID_SNAP) * GRID_SNAP;
+    }
+
+    function updateStatus(text) {
+      statusBox.innerHTML = `<b>Status:</b> ${text}`;
+    }
+
+    function updateCounters() {
+      pieceCount.textContent = sceneObjects.length;
+    }
+
+    function setTab(name) {
+      tabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === name));
+      Object.entries(tabContents).forEach(([key, el]) => {
+        el.classList.toggle("active", key === name);
+      });
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => setTab(btn.dataset.tab));
+    });
+
+    function clearSelectionVisual(group) {
+      group.traverse(obj => {
+        if (obj.isMesh && obj.userData.originalMaterial) {
+          obj.material = obj.userData.originalMaterial;
+        }
+      });
+    }
+
+    function applySelectionVisual(group) {
+      group.traverse(obj => {
+        if (obj.isMesh) {
+          if (!obj.userData.originalMaterial) {
+            obj.userData.originalMaterial = obj.material;
+          }
+          obj.material = materials.yellow;
+        }
+      });
+    }
+
+    function getObjectById(id) {
+      return sceneObjects.find(o => o.userData.id === id) || null;
+    }
+
+    function getAssemblyIds(startId) {
+      if (!startId) return [];
+      const visited = new Set([startId]);
+      const queue = [startId];
+
+      while (queue.length) {
+        const current = queue.shift();
+        connections.forEach(conn => {
+          if (conn.aId === current && !visited.has(conn.bId)) {
+            visited.add(conn.bId);
+            queue.push(conn.bId);
+          }
+          if (conn.bId === current && !visited.has(conn.aId)) {
+            visited.add(conn.aId);
+            queue.push(conn.aId);
+          }
+        });
+      }
+
+      return [...visited];
+    }
+
+    function updateInspectorFields() {
+      if (!selected) {
+        selectedName.textContent = "Nenhuma";
+        selectionSummary.textContent = "Nenhuma";
+        posX.value = "";
+        posY.value = "";
+        posZ.value = "";
+        rotY.value = "";
+        assemblySize.textContent = "0";
+        return;
+      }
+
+      selectedName.textContent = selected.userData.label;
+      selectionSummary.textContent = selected.userData.label;
+      posX.value = selected.position.x.toFixed(1);
+      posY.value = selected.position.y.toFixed(1);
+      posZ.value = selected.position.z.toFixed(1);
+      rotY.value = THREE.MathUtils.radToDeg(selected.rotation.y).toFixed(0);
+      assemblySize.textContent = String(getAssemblyIds(selected.userData.id).length);
+    }
+
+    function selectObject(group) {
+      if (selected === group) return;
+
+      if (selected) clearSelectionVisual(selected);
+      selected = group;
+
+      if (selected) {
+        applySelectionVisual(selected);
+        updateStatus(`peça <b>${selected.userData.label}</b> selecionada.`);
+      } else {
+        updateStatus(`nenhuma peça selecionada.`);
+      }
+
+      updateInspectorFields();
+    }
+
+    function clearEffects() {
+      while (connectionLines.length) {
+        effectsGroup.remove(connectionLines.pop());
+      }
+      while (connectorVisuals.length) {
+        effectsGroup.remove(connectorVisuals.pop());
+      }
+    }
+
+    function createConnectorPreview(worldPos, isSelected = false) {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(isSelected ? 0.085 : 0.06, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: isSelected ? 0xffd166 : 0x58e7ff,
+          transparent: true,
+          opacity: isSelected ? 0.65 : 0.45
+        })
+      );
+      mesh.position.copy(worldPos);
+      effectsGroup.add(mesh);
+      connectorVisuals.push(mesh);
+    }
+
+    function addConnectionLine(a, b, powered, signaled) {
+      const geom = new THREE.BufferGeometry().setFromPoints([a.clone(), b.clone()]);
+      const line = new THREE.Line(
+        geom,
+        new THREE.LineBasicMaterial({
+          color: powered ? 0x49f3b6 : signaled ? 0x58e7ff : 0x9165ff,
+          transparent: true,
+          opacity: 0.75
+        })
+      );
+      effectsGroup.add(line);
+      connectionLines.push(line);
+    }
+
+    function getWorldConnectors(group) {
+      const arr = [];
+      (group.userData.connectors || []).forEach(marker => {
+        const pos = new THREE.Vector3();
+        marker.getWorldPosition(pos);
+        arr.push({
+          object: group,
+          marker,
+          pos,
+          kind: marker.userData.kind,
+          name: marker.userData.name
+        });
+      });
+      return arr;
+    }
+
+    function compatibleKinds(a, b) {
+      const allowed = [
+        ["io", "io"],
+        ["power", "power"],
+        ["mount", "mount"],
+        ["mount", "tool"],
+        ["tool", "mount"],
+        ["axle", "axle"],
+        ["motion", "tool"],
+        ["sense", "io"],
+        ["io", "sense"],
+        ["mount", "motion"],
+        ["motion", "mount"]
+      ];
+      return allowed.some(([x, y]) => x === a && y === b);
+    }
+
+    function registerConnection(aConnector, bConnector) {
+      const aId = aConnector.object.userData.id;
+      const bId = bConnector.object.userData.id;
+
+      const already = connections.some(c =>
+        (c.aId === aId && c.bId === bId && c.aName === aConnector.name && c.bName === bConnector.name) ||
+        (c.aId === bId && c.bId === aId && c.aName === bConnector.name && c.bName === aConnector.name)
+      );
+
+      if (already) return;
+
+      connections.push({
+        id: uuid(),
+        aId,
+        bId,
+        aName: aConnector.name,
+        bName: bConnector.name,
+        aKind: aConnector.kind,
+        bKind: bConnector.kind
+      });
+    }
+
+    function removeConnectionsForObject(objectId) {
+      for (let i = connections.length - 1; i >= 0; i--) {
+        if (connections[i].aId === objectId || connections[i].bId === objectId) {
+          connections.splice(i, 1);
+        }
+      }
+    }
+
+    function applyMagneticSnap(group) {
+      if (!group) return;
+
+      const myConnectors = getWorldConnectors(group);
+      let best = null;
+
+      sceneObjects.forEach(other => {
+        if (other === group) return;
+
+        getWorldConnectors(other).forEach(b => {
+          myConnectors.forEach(a => {
+            if (!compatibleKinds(a.kind, b.kind)) return;
+            const dist = a.pos.distanceTo(b.pos);
+            if (dist <= CONNECT_DISTANCE && (!best || dist < best.dist)) {
+              best = { a, b, dist };
+            }
+          });
+        });
+      });
+
+      if (!best) return;
+
+      const delta = best.b.pos.clone().sub(best.a.pos);
+      group.position.add(delta);
+      group.position.x = snap(group.position.x);
+      group.position.y = snap(Math.max(0, group.position.y));
+      group.position.z = snap(group.position.z);
+
+      registerConnection(best.a, best.b);
+      updateStatus(`encaixe magnético criado entre <b>${best.a.object.userData.label}</b> e <b>${best.b.object.userData.label}</b>.`);
+    }
+
+    function updateConnectionsVisuals() {
+      clearEffects();
+
+      const all = [];
+      sceneObjects.forEach(obj => {
+        getWorldConnectors(obj).forEach(c => all.push(c));
+      });
+
+      all.forEach(c => createConnectorPreview(c.pos, selected === c.object));
+
+      let poweredAny = false;
+      let signalAny = false;
+
+      connectionsList.innerHTML = "";
+      if (!connections.length) {
+        connectionsList.innerHTML = `<div class="connection-item">Nenhuma conexão encontrada ainda.</div>`;
+      }
+
+      connections.forEach(conn => {
+        const aObj = getObjectById(conn.aId);
+        const bObj = getObjectById(conn.bId);
+        if (!aObj || !bObj) return;
+
+        const aConnector = getWorldConnectors(aObj).find(c => c.name === conn.aName);
+        const bConnector = getWorldConnectors(bObj).find(c => c.name === conn.bName);
+        if (!aConnector || !bConnector) return;
+
+        const powered = !!(aObj.userData.power && bObj.userData.power);
+        const signaled = !!(aObj.userData.signal || bObj.userData.signal);
+        poweredAny = poweredAny || powered;
+        signalAny = signalAny || signaled;
+
+        addConnectionLine(aConnector.pos, bConnector.pos, powered, signaled);
+
+        const item = document.createElement("div");
+        item.className = "connection-item";
+        const dist = aConnector.pos.distanceTo(bConnector.pos).toFixed(2);
+        item.innerHTML = `<b>${aObj.userData.label}</b> ↔ <b>${bObj.userData.label}</b><br>Conectores: ${conn.aName} / ${conn.bName}<br>Tipos: ${conn.aKind} / ${conn.bKind}<br>Distância atual: ${dist}<br>Energia: ${powered ? "sim" : "não"} | Sinal: ${signaled ? "sim" : "não"}`;
+        connectionsList.appendChild(item);
+      });
+
+      connectionCount.textContent = String(connections.length);
+      powerState.textContent = poweredAny || sceneObjects.some(o => o.userData.power) ? "ligada" : "desligada";
+      signalState.textContent = signalAny || sceneObjects.some(o => o.userData.signal) ? "ativo" : "inativo";
+      energyState.textContent = poweredAny || sceneObjects.some(o => o.userData.power) ? "online" : "offline";
+      updateInspectorFields();
+    }
+
+    function addPart(type, position = null) {
+      const config = partFactories[type];
+      if (!config) return;
+
+      const group = config.build();
+      group.userData.type = type;
+      group.userData.label = config.label;
+      group.userData.id = uuid();
+      group.userData.basePosition = new THREE.Vector3();
+
+      const defaultY = group.userData.defaultHeight ?? 0.1;
+      const x = position?.x ?? snap((Math.random() - 0.5) * 4);
+      const z = position?.z ?? snap((Math.random() - 0.5) * 4);
+      const y = position?.y ?? defaultY;
+
+      group.position.set(snap(x), snap(y), snap(z));
+      root.add(group);
+      sceneObjects.push(group);
+
+      updateCounters();
+      selectObject(group);
+      updateConnectionsVisuals();
+      updateStatus(`peça <b>${config.label}</b> adicionada.`);
+    }
+
+    function removeSelected() {
+      if (!selected) {
+        updateStatus(`nenhuma peça para excluir.`);
+        return;
+      }
+
+      const name = selected.userData.label;
+      const id = selected.userData.id;
+      root.remove(selected);
+
+      const idx = sceneObjects.indexOf(selected);
+      if (idx >= 0) sceneObjects.splice(idx, 1);
+
+      removeConnectionsForObject(id);
+      selected = null;
+      updateCounters();
+      updateInspectorFields();
+      updateConnectionsVisuals();
+      updateStatus(`peça <b>${name}</b> removida.`);
+    }
+
+    function duplicateSelected() {
+      if (!selected) {
+        updateStatus(`selecione uma peça antes de duplicar.`);
+        return;
+      }
+
+      addPart(selected.userData.type, {
+        x: selected.position.x + GRID_SNAP,
+        y: selected.position.y,
+        z: selected.position.z + GRID_SNAP
+      });
+      updateStatus(`cópia criada com sucesso.`);
+    }
+
+    function focusSelected() {
+      if (!selected) {
+        updateStatus(`selecione uma peça para focar.`);
+        return;
+      }
+      controls.target.copy(selected.position);
+      updateStatus(`câmera focada em <b>${selected.userData.label}</b>.`);
+    }
+
+    function applyInspectorTransform() {
+      if (!selected) {
+        updateStatus(`selecione uma peça antes de aplicar transformação.`);
+        return;
+      }
+
+      selected.position.x = snap(parseFloat(posX.value || 0));
+      selected.position.y = snap(parseFloat(posY.value || 0));
+      selected.position.z = snap(parseFloat(posZ.value || 0));
+      selected.rotation.y = THREE.MathUtils.degToRad(parseFloat(rotY.value || 0));
+
+      applyMagneticSnap(selected);
+      updateInspectorFields();
+      updateConnectionsVisuals();
+      updateStatus(`transformação aplicada.`);
+    }
+
+    function serializeProject() {
+      return {
+        meta: {
+          name: projectMeta.name,
+          goal: projectMeta.goal,
+          notes: projectMeta.notes
+        },
+        parts: sceneObjects.map(obj => ({
+          id: obj.userData.id,
+          type: obj.userData.type,
+          x: obj.position.x,
+          y: obj.position.y,
+          z: obj.position.z,
+          rotY: obj.rotation.y
+        })),
+        connections: connections.map(c => ({ ...c }))
+      };
+    }
+
+    function applyProjectMetaFromInputs() {
+      projectMeta.name = robotName.value.trim() || "Nexus Builder";
+      projectMeta.goal = robotGoal.value.trim();
+      projectMeta.notes = robotNotes.value.trim();
+      projectNameLabel.textContent = projectMeta.name;
+      jsonBox.value = JSON.stringify(serializeProject(), null, 2);
+      updateStatus(`dados do projeto atualizados.`);
+    }
+
+    function loadProjectData(data) {
+      while (sceneObjects.length) {
+        root.remove(sceneObjects[0]);
+        sceneObjects.shift();
+      }
+      connections.length = 0;
+      selected = null;
+
+      projectMeta.name = data?.meta?.name || "Nexus Builder";
+      projectMeta.goal = data?.meta?.goal || "";
+      projectMeta.notes = data?.meta?.notes || "";
+
+      robotName.value = projectMeta.name;
+      robotGoal.value = projectMeta.goal;
+      robotNotes.value = projectMeta.notes;
+      projectNameLabel.textContent = projectMeta.name;
+
+      if (Array.isArray(data?.parts)) {
+        data.parts.forEach(item => {
+          const config = partFactories[item.type];
+          if (!config) return;
+
+          const obj = config.build();
+          obj.userData.type = item.type;
+          obj.userData.label = config.label;
+          obj.userData.id = item.id || uuid();
+          obj.userData.basePosition = new THREE.Vector3();
+          obj.position.set(item.x, item.y, item.z);
+          obj.rotation.y = item.rotY || 0;
+          root.add(obj);
+          sceneObjects.push(obj);
+        });
+      }
+
+      if (Array.isArray(data?.connections)) {
+        data.connections.forEach(c => connections.push({ ...c }));
+      }
+
+      updateCounters();
+      updateInspectorFields();
+      updateConnectionsVisuals();
+      jsonBox.value = JSON.stringify(serializeProject(), null, 2);
+    }
+
+    function saveProject() {
+      const data = serializeProject();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      jsonBox.value = JSON.stringify(data, null, 2);
+      updateStatus(`projeto salvo com <b>${data.parts.length}</b> peça(s).`);
+    }
+
+    function loadProject() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        updateStatus(`nenhum projeto salvo encontrado.`);
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        loadProjectData(parsed);
+        updateStatus(`projeto carregado com sucesso.`);
+      } catch {
+        updateStatus(`não foi possível carregar o projeto salvo.`);
+      }
+    }
+
+    function clearProject() {
+      loadProjectData({
+        meta: { name: "Nexus Builder", goal: "", notes: "" },
+        parts: [],
+        connections: []
+      });
+      updateStatus(`projeto limpo.`);
+    }
+
+    async function copyJson() {
+      const data = JSON.stringify(serializeProject(), null, 2);
+      jsonBox.value = data;
+      try {
+        await navigator.clipboard.writeText(data);
+        updateStatus(`JSON copiado para a área de transferência.`);
+      } catch {
+        updateStatus(`não foi possível copiar. O JSON foi colocado na caixa de texto.`);
+      }
+    }
+
+    function importJson() {
+      const text = jsonBox.value.trim();
+      if (!text) {
+        updateStatus(`cole um JSON válido antes de importar.`);
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(text);
+        loadProjectData(parsed);
+        updateStatus(`JSON importado com sucesso.`);
+      } catch {
+        updateStatus(`JSON inválido.`);
+      }
+    }
+
+    function appendChatMessage(type, html) {
+      const div = document.createElement("div");
+      div.className = `msg ${type}`;
+      div.innerHTML = html;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendChatToBackend() {
+      const prompt = chatInput.value.trim();
+      if (!prompt) return;
+
+      appendChatMessage("user", prompt);
+      chatInput.value = "";
+
+      const payload = {
+        message: prompt,
+        project: serializeProject()
+      };
+
+      try {
+        const res = await fetch("/api/robotics-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        const reply = data.reply || "Não consegui gerar resposta agora.";
+        appendChatMessage("ai", `<b>Nexus AI:</b> ${reply.replace(/\n/g, "<br>")}`);
+      } catch {
+        appendChatMessage("ai", `<b>Nexus AI:</b> Não consegui falar com o backend agora. Verifique a rota <code>/api/robotics-chat</code> no Flask.`);
+      }
+
+      setTab("chat");
+    }
+
+    function setMouseFromEvent(event) {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function getIntersections(event) {
+      setMouseFromEvent(event);
+      raycaster.setFromCamera(mouse, camera);
+      const meshes = [];
+      sceneObjects.forEach(group => {
+        group.traverse(obj => {
+          if (obj.isMesh) meshes.push(obj);
+        });
+      });
+      return raycaster.intersectObjects(meshes, false);
+    }
+
+    function getRootFromMesh(mesh) {
+      let current = mesh;
+      while (current && current.parent && current.parent !== root) {
+        current = current.parent;
+      }
+      return current?.parent === root ? current : null;
+    }
+
+    function startDragging(group, event) {
+      selectObject(group);
+      dragAssemblyIds = getAssemblyIds(group.userData.id);
+      dragStartPositions = new Map();
+
+      dragAssemblyIds.forEach(id => {
+        const obj = getObjectById(id);
+        if (obj) dragStartPositions.set(id, obj.position.clone());
+      });
+
+      setMouseFromEvent(event);
+      raycaster.setFromCamera(mouse, camera);
+      if (raycaster.ray.intersectPlane(dragPlane, dragPoint)) {
+        dragOffset.copy(group.position).sub(dragPoint);
+        dragging = true;
+        canvas.classList.add("dragging");
+        controls.enabled = false;
+      }
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      const hits = getIntersections(event);
+      if (hits.length > 0) {
+        const group = getRootFromMesh(hits[0].object);
+        if (group) {
+          startDragging(group, event);
+          return;
+        }
+      }
+      selectObject(null);
+    });
+
+    window.addEventListener("pointermove", (event) => {
+      if (!dragging || !selected) return;
+
+      setMouseFromEvent(event);
+      raycaster.setFromCamera(mouse, camera);
+
+      if (raycaster.ray.intersectPlane(dragPlane, dragPoint)) {
+        const next = dragPoint.clone().add(dragOffset);
+        const dx = snap(next.x) - selected.position.x;
+        const dz = snap(next.z) - selected.position.z;
+
+        dragAssemblyIds.forEach(id => {
+          const obj = getObjectById(id);
+          if (!obj) return;
+          obj.position.x = snap(obj.position.x + dx);
+          obj.position.z = snap(obj.position.z + dz);
+        });
+
+        updateInspectorFields();
+        updateConnectionsVisuals();
+      }
+    });
+
+    window.addEventListener("pointerup", () => {
+      if (dragging && selected) {
+        applyMagneticSnap(selected);
+        updateConnectionsVisuals();
+        updateInspectorFields();
+      }
+      dragging = false;
+      canvas.classList.remove("dragging");
+      controls.enabled = true;
+      dragAssemblyIds = [];
+      dragStartPositions.clear();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (!selected) return;
+
+      const step = GRID_SNAP;
+      const rotStep = THREE.MathUtils.degToRad(15);
+
+      if (event.key === "Delete") {
+        removeSelected();
+        return;
+      }
+
+      if (event.ctrlKey && event.key.toLowerCase() === "d") {
+        event.preventDefault();
+        duplicateSelected();
+        return;
+      }
+
+      const ids = getAssemblyIds(selected.userData.id);
+      const objs = ids.map(getObjectById).filter(Boolean);
+
+      switch (event.key.toLowerCase()) {
+        case "q":
+          selected.rotation.y += rotStep;
+          break;
+        case "e":
+          selected.rotation.y -= rotStep;
+          break;
+        case "r":
+          objs.forEach(o => o.position.y = snap(o.position.y + step));
+          break;
+        case "f":
+          objs.forEach(o => o.position.y = snap(Math.max(0, o.position.y - step)));
+          break;
+        case "arrowup":
+          objs.forEach(o => o.position.z = snap(o.position.z - step));
+          break;
+        case "arrowdown":
+          objs.forEach(o => o.position.z = snap(o.position.z + step));
+          break;
+        case "arrowleft":
+          objs.forEach(o => o.position.x = snap(o.position.x - step));
+          break;
+        case "arrowright":
+          objs.forEach(o => o.position.x = snap(o.position.x + step));
+          break;
+        default:
+          return;
+      }
+
+      applyMagneticSnap(selected);
+      updateInspectorFields();
+      updateConnectionsVisuals();
+    });
+
+    function toggleSimulation() {
+      simulationRunning = !simulationRunning;
+      simState.textContent = simulationRunning ? "rodando" : "parada";
+      simulateBtn.textContent = simulationRunning ? "Parar simulação" : "Simular";
+
+      if (!simulationRunning) {
+        sceneObjects.forEach(obj => {
+          if (obj.userData.basePosition) {
+            obj.position.copy(obj.userData.basePosition);
+          }
+        });
+        updateConnectionsVisuals();
+      } else {
+        sceneObjects.forEach(obj => {
+          obj.userData.basePosition = obj.position.clone();
+        });
+      }
+    }
+
+    function animateSimulation(delta) {
+      simulationTime += delta;
+
+      const hasBot = sceneObjects.some(o => o.userData.type === "bot");
+      const hasDrone = sceneObjects.some(o => o.userData.type === "drone");
+
+      if (hasBot) {
+        const t = simulationTime;
+        const pathX = Math.sin(t * 0.8) * 2.2;
+        const pathZ = Math.cos(t * 0.5) * 1.4;
+
+        const roots = sceneObjects.filter(o => o.userData.type === "bot");
+        roots.forEach(bot => {
+          const ids = getAssemblyIds(bot.userData.id);
+          ids.forEach(id => {
+            const obj = getObjectById(id);
+            if (!obj || !obj.userData.basePosition) return;
+            obj.position.x = obj.userData.basePosition.x + pathX;
+            obj.position.z = obj.userData.basePosition.z + pathZ;
+          });
+        });
+      }
+
+      if (hasDrone) {
+        sceneObjects.filter(o => o.userData.type === "drone").forEach(drone => {
+          if (!drone.userData.basePosition) return;
+          drone.position.y = drone.userData.basePosition.y + Math.sin(simulationTime * 2.4) * 0.35 + 0.3;
+          drone.rotation.y += 0.04;
+        });
+      }
+
+      sceneObjects.filter(o => o.userData.type === "arm").forEach(arm => {
+        arm.rotation.y += 0.01;
+      });
+    }
+
+    partsGrid.addEventListener("click", (event) => {
+      const card = event.target.closest(".part-card");
+      if (!card) return;
+      addPart(card.dataset.part);
+    });
+
+    saveBtn.addEventListener("click", saveProject);
+    loadBtn.addEventListener("click", loadProject);
+    exportBtn.addEventListener("click", () => {
+      jsonBox.value = JSON.stringify(serializeProject(), null, 2);
+      setTab("project");
+      updateStatus(`JSON exportado para a caixa de texto.`);
+    });
+    importBtn.addEventListener("click", () => {
+      setTab("project");
+      importJson();
+    });
+    clearBtn.addEventListener("click", clearProject);
+    deleteBtn.addEventListener("click", removeSelected);
+    duplicateBtn.addEventListener("click", duplicateSelected);
+    applyTransformBtn.addEventListener("click", applyInspectorTransform);
+    focusBtn.addEventListener("click", focusSelected);
+    simulateBtn.addEventListener("click", toggleSimulation);
+    applyProjectMetaBtn.addEventListener("click", applyProjectMetaFromInputs);
+    copyJsonBtn.addEventListener("click", copyJson);
+    sendChatBtn.addEventListener("click", sendChatToBackend);
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const w = Math.max(100, rect.width);
+      const h = Math.max(100, rect.height);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    let lastTime = performance.now();
+    function animate(now = performance.now()) {
+      const delta = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      floorRing.rotation.z += 0.0025;
+      point.intensity = 1.4 + Math.sin(now * 0.0022) * 0.15;
+
+      connectorVisuals.forEach((obj, i) => {
+        obj.scale.setScalar(1 + Math.sin(now * 0.004 + i) * 0.12);
+      });
+
+      connectionLines.forEach((line, i) => {
+        line.material.opacity = 0.45 + 0.3 * (0.5 + 0.5 * Math.sin(now * 0.004 + i));
+      });
+
+      if (simulationRunning) {
+        animateSimulation(delta);
+        updateConnectionsVisuals();
+      } else {
+        sceneObjects.forEach((obj, index) => {
+          obj.position.y += Math.sin(now * 0.0012 + index * 0.7) * 0.0008;
+        });
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    function bootDefaultProject() {
+      addPart("bot", { x: 0, y: 0.2, z: 0 });
+      addPart("board", { x: 0, y: 0.5, z: 0 });
+      addPart("sensor", { x: 0, y: 0.3, z: 1.5 });
+      selectObject(sceneObjects[0]);
+      robotName.value = projectMeta.name;
+      projectNameLabel.textContent = projectMeta.name;
+      jsonBox.value = JSON.stringify(serializeProject(), null, 2);
+      updateConnectionsVisuals();
+    }
+
+    bootDefaultProject();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

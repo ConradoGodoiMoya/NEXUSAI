@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Creator | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Central de criação</h3>
+      <p>Escolha uma área para começar seu projeto.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    {% for item in tools %}
+    <div class="feature-card">
+      <span class="feature-icon">⚙️</span>
+      <h4>{{ item }}</h4>
+      <p>Base pronta para acelerar sua criação.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

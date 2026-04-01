@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Registrar | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="form-shell">
+  <div class="auth-card">
+    <span class="auth-kicker">Cadastro</span>
+    <h1>Criar conta</h1>
+    <p>Crie sua conta para acessar a Nexus IA.</p>
+
+    <form method="POST" class="form-grid">
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" type="text" name="name" placeholder="Seu nome" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" placeholder="seuemail@exemplo.com" required>
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" type="password" name="password" placeholder="Crie uma senha" required>
+      </div>
+
+      <div class="field">
+        <label for="confirm_password">Confirmar senha</label>
+        <input id="confirm_password" type="password" name="confirm_password" placeholder="Repita a senha" required>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Registrar</button>
+        <a class="btn btn-ghost" href="/login">Já tenho conta</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

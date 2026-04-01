@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Chat | Nexus{% endblock %}
+{% block page_title %}Chat Nexus{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+  <div class="chat-welcome">
+    <h2>Como posso ajudar?</h2>
+    <p>Converse, peça código, peça imagens e use o Nexus como seu centro principal.</p>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg-row">
+      <div class="msg-avatar ai">N</div>
+      <div class="msg-bubble ai">Olá. Eu sou o Nexus. Posso ajudar com código, criação de SaaS, criação de IA, estudos e imagens.</div>
+    </div>
+  </div>
+
+  <div class="chat-input-wrap">
+    <form class="chat-form" id="chatForm">
+      <div class="chat-form-inner">
+        <button type="button" class="chat-mini-btn">+</button>
+        <textarea class="chat-textarea" id="chatInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+        <div class="chat-actions">
+          <button type="button" class="chat-mini-btn" id="imageModeBtn">🖼</button>
+          <button type="submit" class="send-btn">↑</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='chat.js') }}" defer></script>
+{% endblock %}

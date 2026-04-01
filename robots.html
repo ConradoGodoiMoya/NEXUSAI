@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Nexus Robotics | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel robotics-hero">
+  <div class="section-head">
+    <div>
+      <h3>Nexus Robotics</h3>
+      <p>Crie robôs por setores, monte o exterior visualmente e programe o software no mesmo lugar.</p>
+    </div>
+  </div>
+
+  <div class="robotics-sector-grid">
+    <button class="sector-card active" type="button" onclick="selectSector(this, 'Humanoides')">
+      <span>🧍</span>
+      <strong>Humanoides</strong>
+      <p>Assistência, interação e presença física avançada.</p>
+    </button>
+
+    <button class="sector-card" type="button" onclick="selectSector(this, 'Indústria')">
+      <span>🏭</span>
+      <strong>Indústria</strong>
+      <p>Automação, montagem, inspeção e operação pesada.</p>
+    </button>
+
+    <button class="sector-card" type="button" onclick="selectSector(this, 'Segurança')">
+      <span>🛡️</span>
+      <strong>Segurança</strong>
+      <p>Monitoramento, vigilância, patrulha e resposta rápida.</p>
+    </button>
+
+    <button class="sector-card" type="button" onclick="selectSector(this, 'Entrega')">
+      <span>📦</span>
+      <strong>Entrega</strong>
+      <p>Transporte autônomo, logística urbana e distribuição.</p>
+    </button>
+
+    <button class="sector-card" type="button" onclick="selectSector(this, 'Exploração')">
+      <span>🪐</span>
+      <strong>Exploração</strong>
+      <p>Ambientes hostis, inspeção remota e pesquisa avançada.</p>
+    </button>
+  </div>
+
+  <div class="robotics-current-sector">
+    Setor atual: <strong id="current-sector-label">Humanoides</strong>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Setor 1 • Peças e estrutura visual</h3>
+      <p>Arraste as peças para a área de montagem do exterior do robô.</p>
+    </div>
+  </div>
+
+  <div class="robotics-builder-layout">
+    <div class="parts-sidebar">
+      <h4>Peças avançadas</h4>
+
+      <div class="parts-group">
+        <div class="part-card" draggable="true" data-part="Cabeça humanoide">🧠 Cabeça humanoide</div>
+        <div class="part-card" draggable="true" data-part="Cabeça industrial">🤖 Cabeça industrial</div>
+        <div class="part-card" draggable="true" data-part="Torso blindado">🦾 Torso blindado</div>
+        <div class="part-card" draggable="true" data-part="Braço servo">🔩 Braço servo</div>
+        <div class="part-card" draggable="true" data-part="Mão robótica">✋ Mão robótica</div>
+        <div class="part-card" draggable="true" data-part="Perna articulada">🦿 Perna articulada</div>
+        <div class="part-card" draggable="true" data-part="Base esteira">🚜 Base esteira</div>
+        <div class="part-card" draggable="true" data-part="Rodas omnidirecionais">🛞 Rodas omnidirecionais</div>
+        <div class="part-card" draggable="true" data-part="Sensor LiDAR">📡 Sensor LiDAR</div>
+        <div class="part-card" draggable="true" data-part="Câmera avançada">📷 Câmera avançada</div>
+        <div class="part-card" draggable="true" data-part="Sensor térmico">🌡️ Sensor térmico</div>
+        <div class="part-card" draggable="true" data-part="Módulo GPS">🛰️ Módulo GPS</div>
+        <div class="part-card" draggable="true" data-part="Bateria de alta densidade">🔋 Bateria de alta densidade</div>
+        <div class="part-card" draggable="true" data-part="Módulo IA embarcada">💠 Módulo IA embarcada</div>
+        <div class="part-card" draggable="true" data-part="Braço industrial pesado">🏗️ Braço industrial pesado</div>
+      </div>
+    </div>
+
+    <div class="robot-canvas-wrap">
+      <div class="robot-canvas-header">
+        <h4>Área visual do exterior do robô</h4>
+        <div class="canvas-actions">
+          <button class="btn btn-ghost" type="button" onclick="clearRobotCanvas()">Limpar</button>
+        </div>
+      </div>
+
+      <div id="robot-canvas" class="robot-canvas">
+        <div class="robot-canvas-guide">Arraste as peças para montar seu robô</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Setor 2 • Software do robô</h3>
+      <p>A pessoa pode escrever o código manualmente ou pedir para a IA gerar uma base.</p>
+    </div>
+  </div>
+
+  <div class="robot-software-grid">
+    <div class="software-form-card">
+      <div class="form-grid">
+        <div class="field">
+          <label for="robot_name">Nome do robô</label>
+          <input id="robot_name" type="text" placeholder="Ex: Nexus Titan">
+        </div>
+
+        <div class="field">
+          <label for="robot_type">Tipo do robô</label>
+          <input id="robot_type" type="text" placeholder="Ex: humanoide industrial">
+        </div>
+
+        <div class="field">
+          <label for="robot_sensors">Sensores e módulos</label>
+          <input id="robot_sensors" type="text" placeholder="Ex: LiDAR, câmera, térmico, GPS">
+        </div>
+
+        <div class="field">
+          <label for="robot_prompt">Objetivo e comportamento</label>
+          <textarea id="robot_prompt" data-enter-submit="true" placeholder="Ex: mover caixas, evitar obstáculos, reconhecer comandos e operar em ambiente industrial."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="button" onclick="generateRobotCode()">Gerar software com IA</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="software-editor-card">
+      <div class="code-toolbar">
+        <strong>Editor de software do robô</strong>
+        <span class="editor-note">Você pode editar tudo livremente</span>
+      </div>
+
+      <textarea id="robot-code-editor" class="robot-code-editor" spellcheck="false">class NexusRobot:
+    def __init__(self):
+        self.status = "pronto"
+
+    def iniciar(self):
+        print("Robô iniciado com sucesso.")
+
+    def executar(self):
+        print("Executando tarefa principal...")
+
+
+if __name__ == "__main__":
+    robo = NexusRobot()
+    robo.iniciar()
+    robo.executar()
+</textarea>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let draggedPart = null;
+
+  function selectSector(el, sectorName) {
+    document.querySelectorAll(".sector-card").forEach(card => card.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById("current-sector-label").textContent = sectorName;
+  }
+
+  document.querySelectorAll(".part-card").forEach(part => {
+    part.addEventListener("dragstart", function () {
+      draggedPart = this.dataset.part;
+    });
+  });
+
+  const canvas = document.getElementById("robot-canvas");
+
+  canvas.addEventListener("dragover", function (e) {
+    e.preventDefault();
+  });
+
+  canvas.addEventListener("drop", function (e) {
+    e.preventDefault();
+    if (!draggedPart) return;
+
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    const piece = document.createElement("div");
+    piece.className = "robot-piece";
+    piece.textContent = draggedPart;
+    piece.style.left = x + "px";
+    piece.style.top = y + "px";
+    piece.title = draggedPart;
+
+    piece.addEventListener("dblclick", function () {
+      this.remove();
+    });
+
+    const guide = canvas.querySelector(".robot-canvas-guide");
+    if (guide) guide.style.display = "none";
+
+    canvas.appendChild(piece);
+    draggedPart = null;
+  });
+
+  function clearRobotCanvas() {
+    document.querySelectorAll(".robot-piece").forEach(piece => piece.remove());
+    const guide = canvas.querySelector(".robot-canvas-guide");
+    if (guide) guide.style.display = "flex";
+  }
+
+  async function generateRobotCode() {
+    const robot_name = document.getElementById("robot_name").value.trim();
+    const robot_type = document.getElementById("robot_type").value.trim();
+    const sensors = document.getElementById("robot_sensors").value.trim();
+    const objective = document.getElementById("robot_prompt").value.trim();
+    const editor = document.getElementById("robot-code-editor");
+
+    editor.value = "# Gerando software do robô...";
+
+    try {
+      const res = await fetch("/api/robot/generate-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          robot_name: robot_name || "NexusRobot",
+          robot_type: robot_type || "robô avançado",
+          sensors: sensors || "LiDAR, câmera",
+          objective: objective || "executar tarefas com autonomia"
+        })
+      });
+
+      const data = await res.json();
+      editor.value = data.code || "# Não foi possível gerar o software agora.";
+    } catch (err) {
+      editor.value = "# Erro ao gerar o software do robô.";
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Criar SaaS{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Criar SaaS</h1>
+  <p class="muted">Projeto atual: <strong>{{ project_nickname }}</strong></p>
+
+  <form method="POST" action="{{ url_for('studio.generate_saas') }}">
+    <label>Nicho</label>
+    <input class="input" type="text" name="niche" required>
+
+    <label>Problema que resolve</label>
+    <textarea class="textarea" name="problem" required></textarea>
+
+    <label>Público</label>
+    <input class="input" type="text" name="audience" placeholder="ex: pequenas empresas, freelancers, estudantes">
+
+    <button class="btn btn-primary" type="submit">Gerar estrutura do SaaS</button>
+  </form>
+
+  {% if result %}
+    <hr style="border-color:rgba(255,255,255,.08); margin:24px 0;">
+    <h2>Resultado</h2>
+    <div class="result">{{ result }}</div>
+  {% endif %}
+</div>
+{% endblock %}

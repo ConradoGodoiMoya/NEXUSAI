@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Criador de Startup SaaS | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Criador automático de startups SaaS</h3>
+      <p>Crie a base do produto, proposta, público, monetização, páginas e estrutura inicial.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="feature-card">
+      <span class="feature-icon">💡</span>
+      <h4>Ideia e posicionamento</h4>
+      <p>Defina o problema, o público e a transformação prometida.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💳</span>
+      <h4>Planos e monetização</h4>
+      <p>Monte preços, créditos, assinaturas e possíveis upgrades.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📈</span>
+      <h4>Lançamento</h4>
+      <p>Estruture home, CTA, onboarding e visão comercial do produto.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;" class="auth-card">
+    <div class="auth-kicker">Nova startup</div>
+    <h2>Descreva sua startup SaaS</h2>
+
+    <form class="form-grid" method="POST" action="/startup/create">
+      <div class="field">
+        <label>Nome da startup</label>
+        <input type="text" name="startup_name" placeholder="Ex.: Nexus Flow">
+      </div>
+
+      <div class="field">
+        <label>Nicho</label>
+        <input type="text" name="niche" placeholder="Ex.: automação para pequenas empresas">
+      </div>
+
+      <div class="field">
+        <label>Problema que resolve</label>
+        <textarea name="problem" placeholder="Ex.: empresas perdem tempo com atendimento manual e organização ruim."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Principal solução</label>
+        <textarea name="solution" placeholder="Ex.: plataforma com IA, automação, painel e relatórios."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Modelo de cobrança</label>
+        <select name="pricing">
+          <option value="assinatura">Assinatura mensal</option>
+          <option value="creditos">Créditos</option>
+          <option value="freemium">Freemium</option>
+          <option value="usage">Por uso</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Gerar startup SaaS</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

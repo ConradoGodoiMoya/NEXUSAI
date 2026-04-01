@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Criar IA{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Criar IA com a minha IA</h1>
+  <p class="muted">Projeto atual: <strong>{{ project_nickname }}</strong></p>
+
+  <form method="POST" action="{{ url_for('builder.generate_ai') }}">
+    <label>Descreva a IA que você quer</label>
+    <textarea class="textarea" name="idea" required></textarea>
+
+    <label>Estilo</label>
+    <input class="input" type="text" name="style" placeholder="ex: futurista, profissional, juvenil">
+
+    <label>Público-alvo</label>
+    <input class="input" type="text" name="target" placeholder="ex: empresas, estudantes, criadores">
+
+    <button class="btn btn-primary" type="submit">Gerar estrutura da IA</button>
+  </form>
+
+  {% if result %}
+    <hr style="border-color:rgba(255,255,255,.08); margin:24px 0;">
+    <h2>Resultado</h2>
+    <div class="result">{{ result }}</div>
+  {% endif %}
+</div>
+{% endblock %}

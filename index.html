@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Nexus Robotics{% endblock %}
+
+{% block content %}
+<div style="height:calc(100vh - 90px);display:grid;grid-template-columns:280px 1fr 320px;gap:14px;padding:14px;box-sizing:border-box;">
+
+  <aside style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;overflow:auto;">
+    <h2 style="margin-top:0;">Peças 3D</h2>
+
+    <div style="display:grid;gap:8px;">
+      <button onclick="addPiece('core')">Tronco</button>
+      <button onclick="addPiece('head')">Cabeça</button>
+      <button onclick="addPiece('arm')">Braço</button>
+      <button onclick="addPiece('forearm')">Antebraço</button>
+      <button onclick="addPiece('hand')">Mão</button>
+      <button onclick="addPiece('leg')">Perna</button>
+      <button onclick="addPiece('shin')">Canela</button>
+      <button onclick="addPiece('foot')">Pé</button>
+      <button onclick="addPiece('servo')">Servo</button>
+      <button onclick="addPiece('camera')">Câmera</button>
+      <button onclick="addPiece('battery')">Bateria</button>
+      <button onclick="addPiece('board')">Placa</button>
+      <button onclick="addPiece('sensor')">Sensor</button>
+    </div>
+
+    <hr style="margin:16px 0;border-color:rgba(255,255,255,.08);">
+
+    <h3>Importar bibliotecas reais</h3>
+    <input id="adminToken" placeholder="Token admin do .env"
+           style="width:100%;padding:10px;border-radius:12px;margin-bottom:10px;">
+    <button onclick="importAllLibs()">Importar tudo</button>
+    <pre id="importOutput" style="white-space:pre-wrap;margin-top:12px;font-size:12px;"></pre>
+
+    <hr style="margin:16px 0;border-color:rgba(255,255,255,.08);">
+
+    <h3>Buscar peças reais</h3>
+    <input id="searchInput" placeholder="Ex: servo, camera, esp32"
+           style="width:100%;padding:10px;border-radius:12px;margin-bottom:10px;">
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <input type="checkbox" id="only3d">
+      Só 3D
+    </label>
+    <button onclick="searchParts()">Buscar</button>
+    <pre id="searchOutput" style="white-space:pre-wrap;margin-top:12px;font-size:12px;"></pre>
+  </aside>
+
+  <main style="position:relative;background:#0a0f1f;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;">
+    <div id="scene3d" style="width:100%;height:100%;"></div>
+
+    <div style="position:absolute;left:12px;top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="resetScene()">Limpar</button>
+      <button onclick="duplicateSelected()">Duplicar</button>
+      <button onclick="deleteSelected()">Excluir</button>
+      <button onclick="rotateSelected('x')">Rot X</button>
+      <button onclick="rotateSelected('y')">Rot Y</button>
+      <button onclick="rotateSelected('z')">Rot Z</button>
+    </div>
+
+    <div style="position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,.45);padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.6;">
+      Arraste para mover • Roda do mouse para zoom • Duplo clique exclui<br>
+      G = grade • Delete = excluir • Ctrl+D = duplicar • R = rotacionar
+    </div>
+  </main>
+
+  <aside style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;overflow:auto;">
+    <h2 style="margin-top:0;">Gerar com IA</h2>
+    <textarea id="robotPrompt" rows="8"
+      style="width:100%;padding:12px;border-radius:12px;margin-bottom:10px;"
+      placeholder="Ex: Gere um humanoide de 1,4m com cabeça compacta, dois braços, duas pernas, câmera frontal, bateria traseira e placa central."></textarea>
+    <button onclick="generateRobot()">Gerar projeto</button>
+    <pre id="robotOutput" style="white-space:pre-wrap;margin-top:12px;font-size:12px;"></pre>
+
+    <hr style="margin:16px 0;border-color:rgba(255,255,255,.08);">
+
+    <h3>Peça selecionada</h3>
+    <div id="selectedInfo">Nenhuma peça selecionada.</div>
+
+    <hr style="margin:16px 0;border-color:rgba(255,255,255,.08);">
+
+    <h3>Projeto</h3>
+    <div id="sceneStats">0 peças</div>
+  </aside>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='robotics/app.js') }}"></script>
+{% endblock %}

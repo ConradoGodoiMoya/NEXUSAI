@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Simulador 3D | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Simulador de robôs 3D</h3>
+      <p>Teste comportamentos, cenários, sensores e missões antes de construir.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🏭</span>
+      <h4>Fábrica inteligente</h4>
+      <p>Teste rotas, braços robóticos, sensores e automação industrial.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌆</span>
+      <h4>Cidade futurista</h4>
+      <p>Use drones, navegação, visão computacional e tomada de decisão.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌲</span>
+      <h4>Resgate em floresta</h4>
+      <p>Missões com obstáculos, mapeamento, câmera e sensores.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;" class="auth-card">
+    <div class="auth-kicker">Simulação</div>
+    <h2>Monte a missão do robô</h2>
+
+    <form class="form-grid" method="POST" action="/robots/simulate">
+      <div class="field">
+        <label>Nome do robô</label>
+        <input type="text" name="robot_name" placeholder="Ex.: Rover Nexus X" required>
+      </div>
+
+      <div class="field">
+        <label>Tipo</label>
+        <select name="robot_type">
+          <option value="autonomo">Autônomo</option>
+          <option value="drone">Drone</option>
+          <option value="industrial">Industrial</option>
+          <option value="resgate">Resgate</option>
+          <option value="humanoide">Humanoide</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Cenário</label>
+        <select name="scenario">
+          <option value="fabrica">Fábrica inteligente</option>
+          <option value="cidade">Cidade futurista</option>
+          <option value="floresta">Resgate em floresta</option>
+          <option value="marte">Base em Marte</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Objetivo da missão</label>
+        <textarea name="mission" placeholder="Ex.: navegar sozinho, identificar obstáculos, buscar objeto e retornar."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Iniciar simulação</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

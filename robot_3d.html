@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Robotics</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root{
+      --bg:#02050d;
+      --bg2:#07111f;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.12);
+      --text:#eef6ff;
+      --muted:#9bb1ca;
+      --cyan:#58e7ff;
+      --blue:#4c84ff;
+      --violet:#9165ff;
+      --green:#49f3b6;
+      --shadow:0 0 28px rgba(88,231,255,.16);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(88,231,255,.12), transparent 22%),
+        radial-gradient(circle at 84% 14%, rgba(145,101,255,.11), transparent 24%),
+        radial-gradient(circle at 55% 82%, rgba(76,132,255,.09), transparent 28%),
+        linear-gradient(180deg, #02050d 0%, #07111f 45%, #02050d 100%);
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -20;
+      display: block;
+    }
+
+    .scene-wash {
+      position: fixed;
+      inset: 0;
+      z-index: -19;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, rgba(88,231,255,.05), transparent 34%),
+        linear-gradient(180deg, rgba(2,5,13,.12), rgba(2,5,13,.6));
+      mix-blend-mode: screen;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -18;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(88,231,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,231,255,.06) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,.22));
+      animation: gridMove 14s linear infinite;
+    }
+
+    @keyframes gridMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(54px); }
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: -17;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(255,255,255,.015) 0px,
+          rgba(255,255,255,.015) 1px,
+          transparent 2px,
+          transparent 4px
+        );
+      opacity: .18;
+    }
+
+    .top-robots {
+      position: fixed;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .top-robot {
+      position: absolute;
+      width: 180px;
+      height: 90px;
+      opacity: .2;
+      filter: drop-shadow(0 0 18px rgba(88,231,255,.28));
+      animation: robotSlide linear infinite;
+    }
+
+    .top-robot.a { top: 16px; left: -240px; animation-duration: 22s; }
+    .top-robot.b { top: 62px; left: -320px; animation-duration: 28s; animation-delay: 7s; }
+    .top-robot.c { top: 108px; left: -280px; animation-duration: 24s; animation-delay: 13s; }
+
+    @keyframes robotSlide {
+      0%   { transform: translateX(0); opacity: 0; }
+      9%   { opacity: .18; }
+      86%  { opacity: .18; }
+      100% { transform: translateX(145vw); opacity: 0; }
+    }
+
+    header {
+      position: relative;
+      z-index: 8;
+      padding: 24px 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+
+    .logo span {
+      color: var(--cyan);
+      text-shadow: 0 0 18px rgba(88,231,255,.56);
+    }
+
+    .nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .25s ease;
+      font-size: .95rem;
+    }
+
+    .nav a:hover {
+      color: var(--cyan);
+      border-color: rgba(88,231,255,.36);
+      box-shadow: 0 0 22px rgba(88,231,255,.12);
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      position: relative;
+      z-index: 8;
+      min-height: calc(100vh - 100px);
+      display: grid;
+      grid-template-columns: 1.04fr .96fr;
+      gap: 28px;
+      align-items: center;
+      padding: 24px 34px 0;
+    }
+
+    .hero-left {
+      max-width: 760px;
+      transform: translate3d(0,0,0);
+      transition: transform .15s linear;
+      will-change: transform;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(88,231,255,.08);
+      border: 1px solid rgba(88,231,255,.24);
+      color: var(--cyan);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      font-size: .95rem;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 5vw, 5.5rem);
+      line-height: .96;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .glow {
+      color: var(--cyan);
+      text-shadow: 0 0 24px rgba(88,231,255,.42);
+    }
+
+    .hero p {
+      max-width: 660px;
+      color: var(--muted);
+      line-height: 1.78;
+      font-size: 1.08rem;
+      margin-bottom: 26px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 15px 24px;
+      border-radius: 18px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: .25s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #02111c;
+      box-shadow: 0 0 28px rgba(88,231,255,.22);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 38px rgba(88,231,255,.34);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .btn-secondary:hover {
+      color: var(--cyan);
+      border-color: rgba(88,231,255,.30);
+      transform: translateY(-1px);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(130px, 1fr));
+      gap: 14px;
+      max-width: 720px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 22px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .stat strong {
+      display: block;
+      color: white;
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.5;
+    }
+
+    .hero-right {
+      position: relative;
+      min-height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate3d(0,0,0);
+      transition: transform .15s linear;
+      will-change: transform;
+    }
+
+    .hud-shell {
+      position: relative;
+      width: min(520px, 94%);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      border: 1px solid rgba(88,231,255,.22);
+      background:
+        radial-gradient(circle at center, rgba(88,231,255,.14), rgba(88,231,255,.03) 34%, transparent 72%);
+      box-shadow:
+        inset 0 0 44px rgba(88,231,255,.10),
+        0 0 40px rgba(88,231,255,.12);
+      overflow: visible;
+    }
+
+    .hud-ring,
+    .hud-ring2,
+    .hud-ring3,
+    .hud-ring4,
+    .hud-ring5 {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(88,231,255,.18);
+    }
+
+    .hud-ring  { animation: spin 18s linear infinite; }
+    .hud-ring2 { inset: 34px; border-color: rgba(145,101,255,.24); animation: spinReverse 12s linear infinite; }
+    .hud-ring3 { inset: 70px; border-color: rgba(88,231,255,.24); animation: spin 8s linear infinite; }
+    .hud-ring4 { inset: 108px; border-color: rgba(73,243,182,.18); animation: spinReverse 7s linear infinite; }
+    .hud-ring5 { inset: 148px; border-color: rgba(255,255,255,.08); animation: spin 10s linear infinite; }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    .hud-core {
+      position: absolute;
+      inset: 33%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at center, rgba(88,231,255,.42), rgba(76,132,255,.14), rgba(2,8,20,.94));
+      border: 1px solid rgba(88,231,255,.32);
+      box-shadow: 0 0 28px rgba(88,231,255,.24);
+      color: white;
+      font-weight: 700;
+    }
+
+    .hud-core small {
+      display: block;
+      margin-top: 8px;
+      color: var(--cyan);
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .hud-side {
+      position: absolute;
+      right: -12px;
+      bottom: 26px;
+      width: 300px;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(5,14,28,.62);
+      border: 1px solid rgba(88,231,255,.18);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .hud-side h3 {
+      font-size: 1rem;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .hud-side p {
+      color: var(--muted);
+      font-size: .93rem;
+      line-height: 1.68;
+    }
+
+    .zones {
+      position: relative;
+      z-index: 8;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      padding: 14px 34px 60px;
+    }
+
+    .zone {
+      position: relative;
+      overflow: hidden;
+      min-height: 230px;
+      padding: 24px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      transition: .25s ease;
+    }
+
+    .zone:hover {
+      transform: translateY(-4px);
+      border-color: rgba(88,231,255,.28);
+    }
+
+    .zone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(88,231,255,.14), transparent 38%);
+      pointer-events: none;
+    }
+
+    .zone-tag {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--cyan);
+      font-size: .92rem;
+    }
+
+    .zone h3 {
+      font-size: 1.24rem;
+      margin-bottom: 12px;
+      color: white;
+    }
+
+    .zone p {
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: .98rem;
+    }
+
+    .scene-pill {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(88,231,255,.08);
+      border: 1px solid rgba(88,231,255,.18);
+      color: var(--text);
+      font-size: .9rem;
+    }
+
+    footer {
+      position: relative;
+      z-index: 8;
+      padding: 0 34px 40px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 1100px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-right {
+        min-height: 520px;
+      }
+
+      .stats,
+      .zones {
+        grid-template-columns: 1fr;
+      }
+
+      .hud-side {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        margin-top: 16px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      header {
+        padding: 18px 20px;
+        flex-direction: column;
+      }
+
+      .hero {
+        padding: 22px 20px 0;
+      }
+
+      .zones,
+      footer {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      h1 {
+        font-size: 2.35rem;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .top-robot {
+        transform: scale(.82);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  <div class="scene-wash"></div>
+  <div class="grid-overlay"></div>
+  <div class="scanlines"></div>
+
+  <div class="top-robots">
+    <svg class="top-robot a" viewBox="0 0 220 110" fill="none">
+      <rect x="14" y="55" width="150" height="28" rx="14" stroke="#58e7ff" stroke-width="2.6"/>
+      <rect x="74" y="28" width="50" height="26" rx="10" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="46" cy="83" r="14" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="132" cy="83" r="14" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="164" y1="67" x2="198" y2="56" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="198" y1="56" x2="208" y2="64" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="88" cy="41" r="3.5" fill="#58e7ff"/>
+      <circle cx="108" cy="41" r="3.5" fill="#58e7ff"/>
+    </svg>
+
+    <svg class="top-robot b" viewBox="0 0 220 110" fill="none">
+      <rect x="77" y="14" width="56" height="42" rx="12" stroke="#58e7ff" stroke-width="2.6"/>
+      <rect x="85" y="58" width="40" height="30" rx="9" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="47" y1="66" x2="85" y2="70" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="125" y1="70" x2="165" y2="60" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="96" y1="88" x2="82" y2="106" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="114" y1="88" x2="128" y2="106" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="96" cy="36" r="4" fill="#58e7ff"/>
+      <circle cx="114" cy="36" r="4" fill="#58e7ff"/>
+    </svg>
+
+    <svg class="top-robot c" viewBox="0 0 220 110" fill="none">
+      <rect x="26" y="58" width="132" height="24" rx="12" stroke="#58e7ff" stroke-width="2.6"/>
+      <rect x="84" y="30" width="42" height="22" rx="8" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="54" cy="82" r="12" stroke="#58e7ff" stroke-width="2.6"/>
+      <circle cx="126" cy="82" r="12" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="158" y1="67" x2="191" y2="46" stroke="#58e7ff" stroke-width="2.6"/>
+      <line x1="191" y1="46" x2="208" y2="58" stroke="#58e7ff" stroke-width="2.6"/>
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo">Nexus <span>Robotics</span></div>
+
+    <nav class="nav">
+      <a href="#fabrica">Fábrica</a>
+      <a href="#casa">Casa</a>
+      <a href="#entrega">Entrega</a>
+      <a href="/robotics">Entrar no Nexus Robotics</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-left" id="heroLeft">
+      <div class="badge">Versão limpa, sem caixas extras inúteis</div>
+
+      <h1>
+        Uma home de robótica com <span class="glow">presença real</span>, profundidade e montagem visual
+      </h1>
+
+      <p>
+        Agora sua tela principal fica mais limpa, sem blocos desnecessários no topo.
+        O foco fica no visual, no botão de entrada e nas áreas principais da Nexus Robotics.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/robotics">Abrir Nexus Robotics</a>
+        <a class="btn btn-secondary" href="#areas">Ver aplicações</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>controle</strong>
+          <span>gire a cena com o mouse e aproxime com a roda</span>
+        </div>
+        <div class="stat">
+          <strong>mais peças</strong>
+          <span>servo, placa, sensor, roda, braço, chip, drone e módulo móvel</span>
+        </div>
+        <div class="stat">
+          <strong>mais imersão</strong>
+          <span>partículas, névoa, glow, HUD e ambientes automáticos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right" id="heroRight">
+      <div class="hud-shell">
+        <div class="hud-ring"></div>
+        <div class="hud-ring2"></div>
+        <div class="hud-ring3"></div>
+        <div class="hud-ring4"></div>
+        <div class="hud-ring5"></div>
+
+        <div class="hud-core">
+          Nexus Robotics
+          <small>Núcleo de montagem inteligente</small>
+        </div>
+
+        <div class="hud-side">
+          <h3>Visual mais interativo</h3>
+          <p>
+            O fundo 3D responde ao mouse e ao zoom. Isso dá mais profundidade e deixa a página
+            mais viva sem poluir a interface com caixas pequenas desnecessárias.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zones" id="areas">
+    <article class="zone" id="fabrica">
+      <span class="zone-tag">Fábrica</span>
+      <h3>Automação industrial</h3>
+      <p>
+        Um visual focado em montagem, braços, precisão, linhas automatizadas e controle de processos.
+      </p>
+      <div class="scene-pill">produção, braços e controle</div>
+    </article>
+
+    <article class="zone" id="casa">
+      <span class="zone-tag">Casa</span>
+      <h3>Assistência doméstica</h3>
+      <p>
+        O clima fica mais suave e confortável, mostrando que robótica também pode ser útil no cotidiano.
+      </p>
+      <div class="scene-pill">apoio, conforto e rotina</div>
+    </article>
+
+    <article class="zone" id="entrega">
+      <span class="zone-tag">Entrega</span>
+      <h3>Logística autônoma</h3>
+      <p>
+        Um ambiente com mais movimento e deslocamento visual, reforçando mobilidade e operação contínua.
+      </p>
+      <div class="scene-pill">rota, deslocamento e operação</div>
+    </article>
+  </section>
+
+  <footer>
+    Nexus Robotics com visual limpo, sem ambient-label e sem mini-hud.
+  </footer>
+
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+
+    const canvas = document.getElementById("bgCanvas");
+    const heroLeft = document.getElementById("heroLeft");
+    const heroRight = document.getElementById("heroRight");
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x07111f, 0.043);
+
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      100
+    );
+    camera.position.set(0, 0.7, 12);
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const hemi = new THREE.HemisphereLight(0x88ddff, 0x04070e, 1.15);
+    scene.add(hemi);
+
+    const dir1 = new THREE.DirectionalLight(0x58e7ff, 2.3);
+    dir1.position.set(5, 6, 8);
+    scene.add(dir1);
+
+    const dir2 = new THREE.DirectionalLight(0x9165ff, 1.8);
+    dir2.position.set(-6, 3, 5);
+    scene.add(dir2);
+
+    const point = new THREE.PointLight(0x58e7ff, 3.3, 35, 2);
+    point.position.set(0, 1.4, 3.5);
+    scene.add(point);
+
+    const materials = {
+      cyan: new THREE.MeshPhysicalMaterial({
+        color: 0x58e7ff,
+        emissive: 0x0f89aa,
+        emissiveIntensity: 0.44,
+        roughness: 0.18,
+        metalness: 0.9
+      }),
+      blue: new THREE.MeshPhysicalMaterial({
+        color: 0x4c84ff,
+        emissive: 0x183da1,
+        emissiveIntensity: 0.38,
+        roughness: 0.22,
+        metalness: 0.84
+      }),
+      violet: new THREE.MeshPhysicalMaterial({
+        color: 0x9165ff,
+        emissive: 0x4b28b0,
+        emissiveIntensity: 0.38,
+        roughness: 0.22,
+        metalness: 0.82
+      }),
+      dark: new THREE.MeshPhysicalMaterial({
+        color: 0x0a1628,
+        emissive: 0x07101b,
+        emissiveIntensity: 0.16,
+        roughness: 0.34,
+        metalness: 0.72
+      })
+    };
+
+    function createPart(x, y, z, material, geo) {
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.position.set(x, y, z);
+      root.add(mesh);
+      return mesh;
+    }
+
+    const parts = [
+      createPart(-2.8, 1.3, 0, materials.cyan, new THREE.BoxGeometry(1.1, 1.55, 0.9)),
+      createPart(2.4, 0.8, -0.5, materials.blue, new THREE.CylinderGeometry(0.5, 0.5, 1.6, 32)),
+      createPart(-0.3, -0.8, 1.2, materials.violet, new THREE.TorusGeometry(0.9, 0.22, 20, 48)),
+      createPart(0.8, 2.0, -1.2, materials.cyan, new THREE.SphereGeometry(0.55, 28, 28)),
+      createPart(-1.4, -1.6, -0.8, materials.dark, new THREE.BoxGeometry(1.4, 0.5, 1.0))
+    ];
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetZoom = 12;
+
+    window.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouseX = x;
+      mouseY = y;
+
+      if (heroLeft) {
+        heroLeft.style.transform = `translate(${x * 8}px, ${y * 6}px)`;
+      }
+      if (heroRight) {
+        heroRight.style.transform = `translate(${x * -10}px, ${y * -8}px)`;
+      }
+    });
+
+    window.addEventListener("wheel", (e) => {
+      targetZoom += e.deltaY * 0.01;
+      targetZoom = Math.max(8, Math.min(16, targetZoom));
+    }, { passive: true });
+
+    window.addEventListener("resize", () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      parts.forEach((p, i) => {
+        p.rotation.x += 0.003 + i * 0.0008;
+        p.rotation.y += 0.006 + i * 0.001;
+      });
+
+      root.rotation.y += 0.0025;
+      root.rotation.x = mouseY * 0.18;
+      root.rotation.z = mouseX * 0.05;
+
+      camera.position.z += (targetZoom - camera.position.z) * 0.05;
+      camera.position.x += (mouseX * 1.4 - camera.position.x) * 0.04;
+      camera.position.y += ((0.7 + mouseY * 0.9) - camera.position.y) * 0.04;
+
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Painel{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+  <section class="card">
+    <h1>Bem-vindo, {{ current_user.name if current_user else "Usuário" }}</h1>
+    <p class="muted">Aqui você ajusta o nome do projeto e entra nas áreas principais.</p>
+
+    <form method="POST" action="{{ url_for('save_project_nickname') }}">
+      <label>Apelido do projeto</label>
+      <input class="input" type="text" name="project_nickname" value="{{ project_nickname }}" required>
+      <button class="btn btn-primary" type="submit">Salvar apelido</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Seu projeto atual</h2>
+    <div class="result">{{ project_nickname }}</div>
+  </section>
+
+  <section class="card">
+    <h2>Criar IA com a minha IA</h2>
+    <p class="muted">Monte sua ideia de IA, funcionalidades, fluxo e monetização.</p>
+    <a class="btn btn-primary" href="{{ url_for('my_ai') }}">Abrir Criar IA</a>
+  </section>
+
+  <section class="card">
+    <h2>Criar SaaS</h2>
+    <p class="muted">Estruture produto, planos, telas e estratégia do seu SaaS.</p>
+    <a class="btn btn-primary" href="{{ url_for('create_saas') }}">Abrir Criar SaaS</a>
+  </section>
+</div>
+{% endblock %}

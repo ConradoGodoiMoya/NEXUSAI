@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Nexus - Início{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+  <section class="card">
+    <h1>Construa sua IA e seu SaaS em um só lugar</h1>
+    <p class="muted">
+      Entre na sua conta, escolha um apelido para o projeto e use os módulos para criar IA e estruturar SaaS.
+    </p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
+      <a class="btn btn-primary" href="{{ url_for('register') }}">Começar agora</a>
+      <a class="btn" href="{{ url_for('login') }}">Já tenho conta</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Áreas restauradas</h2>
+    <p class="muted">Esta versão recoloca:</p>
+    <ul>
+      <li>Registro</li>
+      <li>Login</li>
+      <li>Apelido do projeto</li>
+      <li>Criar IA com a minha IA</li>
+      <li>Criar SaaS</li>
+    </ul>
+  </section>
+</div>
+{% endblock %}

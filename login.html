@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Login | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="form-shell">
+  <div class="auth-card">
+    <span class="auth-kicker">Acesso</span>
+    <h1>Entrar</h1>
+    <p>Entre para acessar seus projetos e módulos.</p>
+
+    <form method="POST" class="form-grid">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" placeholder="seuemail@exemplo.com" required>
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" type="password" name="password" placeholder="Digite sua senha" required>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Fazer login</button>
+        <a class="btn btn-ghost" href="/register">Criar conta</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

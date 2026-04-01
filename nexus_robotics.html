@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+
+{% block title %}Nexus Robotics{% endblock %}
+
+{% block head %}
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Nexus Robotics</h3>
+      <p>
+        Monte robôs manualmente ou com IA. Trabalhe carcaça, hardware, software e orçamento no mesmo laboratório.
+      </p>
+    </div>
+  </div>
+
+  <div class="robotics-tabs">
+    <button class="robotics-tab active" type="button" onclick="setRoboticsTab('library', this)">Biblioteca</button>
+    <button class="robotics-tab" type="button" onclick="setRoboticsTab('software', this)">Software</button>
+    <button class="robotics-tab" type="button" onclick="setRoboticsTab('budget', this)">Orçamento</button>
+    <button class="robotics-tab" type="button" onclick="setRoboticsTab('assistant', this)">IA assistente</button>
+  </div>
+</div>
+
+<div class="robotics-v5-layout">
+  <aside class="robotics-sidebar">
+    <div id="tab-library" class="robotics-tab-panel active-panel">
+      <div class="panel robotics-side-panel">
+        <h3>Biblioteca de peças</h3>
+
+        <div class="field">
+          <label for="parts-search">Buscar peça</label>
+          <input id="parts-search" type="text" placeholder="Ex: lidar, motor, bateria" oninput="filterParts()">
+        </div>
+
+        <div class="field" style="margin-top:10px;">
+          <label for="parts-category">Categoria</label>
+          <select id="parts-category" onchange="filterParts()">
+            <option value="">Todas</option>
+            {% for category in categories %}
+            <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div id="parts-library" class="parts-library-grid" style="margin-top:14px;">
+          {% for part in hardware_parts %}
+          <button
+            class="library-card"
+            type="button"
+            data-id="{{ part.id }}"
+            data-name="{{ part.name }}"
+            data-name-lower="{{ part.name|lower }}"
+            data-category="{{ part.category }}"
+            data-icon="{{ part.icon }}"
+            data-cost="{{ part.cost }}"
+            onclick="selectLibraryPartFromCard(this)"
+          >
+            <span class="library-icon">{{ part.icon }}</span>
+            <strong>{{ part.name }}</strong>
+            <small>{{ part.category }}</small>
+            <span class="library-price">R$ {{ part.cost }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-software" class="robotics-tab-panel">
+      <div class="panel robotics-side-panel">
+        <h3>Templates rápidos</h3>
+        <div class="robot-parts-list">
+          <button class="robot-part-btn" type="button" onclick="fillSoftwareTemplate('industrial')">Industrial</button>
+          <button class="robot-part-btn" type="button" onclick="fillSoftwareTemplate('inspection')">Inspeção</button>
+          <button class="robot-part-btn" type="button" onclick="fillSoftwareTemplate('humanoid')">Humanoide</button>
+          <button class="robot-part-btn" type="button" onclick="fillSoftwareTemplate('security')">Segurança</button>
+          <button class="robot-part-btn accent" type="button" onclick="generateRobotSoftware()">Gerar com IA</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-budget" class="robotics-tab-panel">
+      <div class="panel robotics-side-panel">
+        <h3>Orçamento</h3>
+        <div class="robot-parts-list">
+          <button class="robot-part-btn accent" type="button" onclick="recalculateBudget()">Calcular orçamento</button>
+          <button class="robot-part-btn" type="button" onclick="clearAssembly()">Limpar montagem</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-assistant" class="robotics-tab-panel">
+      <div class="panel robotics-side-panel">
+        <h3>IA assistente</h3>
+        <div class="field">
+          <label for="assistant_prompt">Peça para a IA montar</label>
+          <textarea id="assistant_prompt" class="robot-mini-textarea" placeholder="Ex: monte um robô humanoide para inspeção industrial com boa visão, bateria forte e custo equilibrado."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="button" onclick="generateFullRobotPlan()">Gerar plano completo</button>
+        </div>
+        <div id="assistant_result" class="ai-mini-result">A sugestão completa da IA vai aparecer aqui.</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="robotics-main">
+    <div class="panel robotics-3d-panel">
+      <div class="robotics-3d-head">
+        <div>
+          <h3>Laboratório 3D</h3>
+          <p>Monte o robô visualmente e acompanhe as peças adicionadas.</p>
+        </div>
+        <div class="robotics-mini-status">
+          <span>Mouse: girar</span>
+          <span>Scroll: zoom</span>
+          <span>Direito: mover</span>
+        </div>
+      </div>
+
+      <div id="robotics-3d-canvas" class="robotics-3d-canvas"></div>
+    </div>
+
+    <div id="right-panel-library" class="robotics-right-panel active-right-panel">
+      <div class="panel robot-details-panel">
+        <div class="section-head">
+          <div>
+            <h3>Peça selecionada</h3>
+            <p>Adicione peças manualmente para montar seu robô.</p>
+          </div>
+        </div>
+
+        <div id="robot-part-details" class="robot-part-details">
+          <div class="robot-detail-empty">
+            Selecione uma peça na biblioteca para ver os detalhes.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="right-panel-software" class="robotics-right-panel">
+      <div class="panel robot-details-panel">
+        <div class="section-head">
+          <div>
+            <h3>Editor de software</h3>
+            <p>Escreva manualmente ou peça para a IA gerar a base do robô.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="robot_prompt">Descrição do comportamento</label>
+            <textarea
+              id="robot_prompt"
+              data-enter-submit="true"
+              data-submit-fn="generateRobotSoftware"
+              placeholder="Ex: robô humanoide industrial com câmera, lidar, GPS, motores nos braços e pernas, rotina de desvio de obstáculos e inspeção."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" onclick="generateRobotSoftware()">Gerar software com IA</button>
+            <button class="btn btn-ghost" type="button" onclick="clearRobotCode()">Limpar código</button>
+          </div>
+
+          <div class="field">
+            <label for="robot_code">Código do robô</label>
+            <textarea id="robot_code" class="robot-code-editor" placeholder="# O código do robô vai aparecer aqui"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="right-panel-budget" class="robotics-right-panel">
+      <div class="panel robot-details-panel">
+        <div class="section-head">
+          <div>
+            <h3>Orçamento do robô</h3>
+            <p>Some peças, montagem e margem de segurança.</p>
+          </div>
+        </div>
+
+        <div id="budget-summary" class="budget-summary-box">
+          <div class="budget-summary-empty">
+            Nenhuma peça adicionada ainda.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="right-panel-assistant" class="robotics-right-panel">
+      <div class="panel robot-details-panel">
+        <div class="section-head">
+          <div>
+            <h3>Plano completo com IA</h3>
+            <p>A IA pode sugerir carcaça, hardware, software e orçamento base.</p>
+          </div>
+        </div>
+
+        <div class="assistant-big-panel">
+          <div class="assistant-big-card">
+            <strong>Carcaça</strong>
+            <p>Estrutura externa pensada para o objetivo do robô.</p>
+          </div>
+          <div class="assistant-big-card">
+            <strong>Hardware</strong>
+            <p>Processamento, energia, sensores e movimento.</p>
+          </div>
+          <div class="assistant-big-card">
+            <strong>Software</strong>
+            <p>Lógica base para sensores, decisão e ação.</p>
+          </div>
+          <div class="assistant-big-card">
+            <strong>Orçamento</strong>
+            <p>Divisão de custo em peças, montagem e margem.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let roboticsScene;
+let roboticsCamera;
+let roboticsRenderer;
+let roboticsControls;
+let robotRoot;
+let animationFrameId = null;
+let current3DMode = "library";
+
+const robotPartsState = {};
+const selectedParts = [];
+
+function setRoboticsTab(tabName, button) {
+  document.querySelectorAll(".robotics-tab").forEach(tab => tab.classList.remove("active"));
+  document.querySelectorAll(".robotics-tab-panel").forEach(panel => panel.classList.remove("active-panel"));
+  document.querySelectorAll(".robotics-right-panel").forEach(panel => panel.classList.remove("active-right-panel"));
+
+  if (button) button.classList.add("active");
+
+  const leftPanel = document.getElementById(`tab-${tabName}`);
+  if (leftPanel) leftPanel.classList.add("active-panel");
+
+  const rightPanel = document.getElementById(`right-panel-${tabName}`);
+  if (rightPanel) rightPanel.classList.add("active-right-panel");
+
+  update3DMode(tabName);
+}
+
+function update3DMode(mode) {
+  current3DMode = mode;
+  if (!robotRoot) return;
+
+  robotRoot.children.forEach((part) => {
+    if (!part.material) return;
+
+    if (mode === "library") {
+      part.material.opacity = 0.9;
+      part.material.transparent = true;
+    } else if (mode === "software") {
+      part.material.opacity = 0.45;
+      part.material.transparent = true;
+    } else if (mode === "budget") {
+      part.material.opacity = 0.75;
+      part.material.transparent = true;
+    } else if (mode === "assistant") {
+      part.material.opacity = 0.82;
+      part.material.transparent = true;
+    }
+  });
+}
+
+function initRoboticsScene() {
+  const container = document.getElementById("robotics-3d-canvas");
+  if (!container || typeof THREE === "undefined") return;
+
+  container.innerHTML = "";
+
+  roboticsScene = new THREE.Scene();
+  roboticsScene.background = new THREE.Color(0x070b16);
+
+  const width = container.clientWidth || 900;
+  const height = container.clientHeight || 520;
+
+  roboticsCamera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+  roboticsCamera.position.set(5.2, 3.8, 7.8);
+
+  roboticsRenderer = new THREE.WebGLRenderer({ antialias: true });
+  roboticsRenderer.setSize(width, height);
+  roboticsRenderer.setPixelRatio(window.devicePixelRatio || 1);
+  container.appendChild(roboticsRenderer.domElement);
+
+  roboticsControls = new THREE.OrbitControls(roboticsCamera, roboticsRenderer.domElement);
+  roboticsControls.enableDamping = true;
+  roboticsControls.dampingFactor = 0.08;
+  roboticsControls.target.set(0, 2.1, 0);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 1.45);
+  roboticsScene.add(ambient);
+
+  const dir1 = new THREE.DirectionalLight(0xffffff, 1.85);
+  dir1.position.set(5, 10, 7);
+  roboticsScene.add(dir1);
+
+  const dir2 = new THREE.DirectionalLight(0x88aaff, 1.2);
+  dir2.position.set(-6, 4, -5);
+  roboticsScene.add(dir2);
+
+  const grid = new THREE.GridHelper(20, 20, 0x5d6bff, 0x23304d);
+  grid.position.y = 0;
+  roboticsScene.add(grid);
+
+  const floorGeometry = new THREE.CircleGeometry(8, 64);
+  const floorMaterial = new THREE.MeshStandardMaterial({
+    color: 0x0b1120,
+    metalness: 0.2,
+    roughness: 0.9
+  });
+  const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.01;
+  roboticsScene.add(floor);
+
+  robotRoot = new THREE.Group();
+  roboticsScene.add(robotRoot);
+
+  animateRoboticsScene();
+  window.addEventListener("resize", handleRoboticsResize);
+}
+
+function handleRoboticsResize() {
+  const container = document.getElementById("robotics-3d-canvas");
+  if (!container || !roboticsCamera || !roboticsRenderer) return;
+
+  const width = container.clientWidth || 900;
+  const height = container.clientHeight || 520;
+
+  roboticsCamera.aspect = width / height;
+  roboticsCamera.updateProjectionMatrix();
+  roboticsRenderer.setSize(width, height);
+}
+
+function animateRoboticsScene() {
+  animationFrameId = requestAnimationFrame(animateRoboticsScene);
+
+  if (roboticsControls) roboticsControls.update();
+
+  const activeTab = document.querySelector(".robotics-tab.active");
+  if (activeTab && activeTab.innerText.includes("IA") && robotRoot) {
+    robotRoot.rotation.y += 0.005;
+  }
+
+  if (roboticsRenderer && roboticsScene && roboticsCamera) {
+    roboticsRenderer.render(roboticsScene, roboticsCamera);
+  }
+}
+
+function makeMaterial(colorHex, opacity = 1) {
+  return new THREE.MeshStandardMaterial({
+    color: colorHex,
+    metalness: 0.65,
+    roughness: 0.32,
+    transparent: opacity < 1,
+    opacity: opacity
+  });
+}
+
+function buildMeshForPart(partId, partIndex) {
+  const colorMap = {
+    core_shell: 0x5c70ff,
+    head_shell: 0x7d5cff,
+    arm_shell_left: 0x3dbef7,
+    arm_shell_right: 0x3dbef7,
+    leg_shell_left: 0x4ee0c2,
+    leg_shell_right: 0x4ee0c2,
+    shoulder_panel_left: 0x95a4ff,
+    shoulder_panel_right: 0x95a4ff,
+    cpu_core: 0x9a8cff,
+    ai_chip: 0xb68cff,
+    battery_core: 0x44d3ff,
+    backup_battery: 0x6ce6ff,
+    power_module: 0xff9f43,
+    cooling_unit: 0x8afff5,
+    camera_sensor: 0xff6bd6,
+    rear_camera: 0xff8ae1,
+    lidar_sensor: 0xffc857,
+    chest_sensor: 0x69f0ae,
+    thermal_sensor: 0xff6b6b,
+    audio_sensor: 0xffffff,
+    gps_module: 0x87f7ff,
+    left_motor: 0xff8b4d,
+    right_motor: 0xff8b4d,
+    left_leg_motor: 0xff9e5e,
+    right_leg_motor: 0xff9e5e,
+    gyro_module: 0x9effd1,
+    antenna_top: 0xffffff,
+    robotic_arm: 0x3dbef7,
+    robotic_hand: 0xeedcff,
+    industrial_gripper: 0xffb86b,
+    precision_gripper: 0xc9a8ff,
+    vacuum_gripper: 0x9be7ff,
+    carbon_fiber_frame: 0x555555,
+    aluminum_frame: 0xb8c4d6,
+    polymer_shell: 0x8888aa
+  };
+
+  const color = colorMap[partId] || 0x8b5cf6;
+  const mat = makeMaterial(color, 0.85);
+  let mesh;
+
+  if (
+    partId.includes("camera") ||
+    partId.includes("lidar") ||
+    partId.includes("sensor") ||
+    partId.includes("gyro") ||
+    partId.includes("gps") ||
+    partId.includes("antenna")
+  ) {
+    mesh = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), mat);
+  } else if (
+    partId.includes("motor") ||
+    partId.includes("arm") ||
+    partId.includes("leg") ||
+    partId.includes("actuator")
+  ) {
+    mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.7, 24), mat);
+    mesh.rotation.z = Math.PI / 2;
+  } else if (
+    partId.includes("shell") ||
+    partId.includes("frame") ||
+    partId.includes("panel")
+  ) {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mat);
+  } else {
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), mat);
+  }
+
+  const row = Math.floor(partIndex / 6);
+  const col = partIndex % 6;
+  mesh.position.set((col - 2.5) * 0.9, 0.7 + row * 0.8, 0);
+
+  return mesh;
+}
+
+function selectLibraryPartFromCard(card) {
+  const id = card.dataset.id || "";
+  const name = card.dataset.name || "";
+  const category = card.dataset.category || "";
+  const icon = card.dataset.icon || "🧩";
+  const cost = Number(card.dataset.cost || 0);
+
+  showPartDetails({ id, name, category, icon, cost });
+  addPartToAssembly(id, name, category, icon, cost);
+}
+
+function addPartToAssembly(id, name, category, icon, cost) {
+  if (!robotRoot || typeof THREE === "undefined") return;
+
+  const partKey = `${id}_${selectedParts.length}`;
+  const mesh = buildMeshForPart(id, selectedParts.length);
+  mesh.userData.partId = id;
+  mesh.userData.partName = name;
+
+  robotRoot.add(mesh);
+  selectedParts.push({ key: partKey, id, name, category, icon, cost });
+  robotPartsState[partKey] = mesh;
+
+  update3DMode(current3DMode);
+  recalculateBudget();
+}
+
+function showPartDetails(part) {
+  const detailsEl = document.getElementById("robot-part-details");
+  if (!detailsEl) return;
+
+  detailsEl.innerHTML = `
+    <div class="robot-detail-card">
+      <div class="robot-detail-header">
+        <div class="robot-detail-visual">${part.icon}</div>
+        <div>
+          <div class="robot-detail-kicker">${part.category}</div>
+          <h4>${part.name}</h4>
+        </div>
+      </div>
+
+      <div class="robot-detail-grid">
+        <div class="robot-metric">
+          <span>Categoria</span>
+          <strong>${part.category}</strong>
+        </div>
+        <div class="robot-metric">
+          <span>Custo base</span>
+          <strong>R$ ${part.cost}</strong>
+        </div>
+      </div>
+
+      <div class="robot-detail-block">
+        <strong>Uso</strong>
+        <p>Esse componente pode ser usado no projeto manualmente ou combinado com sugestões da IA.</p>
+      </div>
+
+      <div class="robot-detail-actions">
+        <button class="btn btn-primary" type="button" onclick="addPartToAssembly('${String(part.id).replace(/'/g, "\\'")}', '${String(part.name).replace(/'/g, "\\'")}', '${String(part.category).replace(/'/g, "\\'")}', '${String(part.icon).replace(/'/g, "\\'")}', ${Number(part.cost)})">Adicionar ao robô</button>
+      </div>
+    </div>
+  `;
+}
+
+function fillSoftwareTemplate(kind) {
+  const promptEl = document.getElementById("robot_prompt");
+  if (!promptEl) return;
+
+  const templates = {
+    industrial: "Robô industrial com rotina de inspeção, leitura de sensores, verificação de falhas, desvio de obstáculos e retorno para base.",
+    inspection: "Robô de inspeção com câmera frontal, lidar, GPS, leitura de ambiente e geração de alertas.",
+    humanoid: "Robô humanoide com equilíbrio, visão computacional, movimento coordenado de braços e pernas e interação básica.",
+    security: "Robô de segurança com patrulha automática, detecção de presença, câmera, áudio e reação a eventos."
+  };
+
+  promptEl.value = templates[kind] || "";
+  promptEl.focus();
+}
+
+async function generateRobotSoftware() {
+  const promptEl = document.getElementById("robot_prompt");
+  const codeEl = document.getElementById("robot_code");
+  if (!promptEl || !codeEl) return;
+
+  const prompt = promptEl.value.trim();
+  codeEl.value = "# Gerando software do robô...";
+
+  try {
+    const res = await fetch("/api/robot/software", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+    codeEl.value = data.code || "# Não foi possível gerar o software agora.";
+  } catch (err) {
+    codeEl.value = "# Erro ao gerar software do robô.";
+  }
+}
+
+function clearRobotCode() {
+  const codeEl = document.getElementById("robot_code");
+  if (codeEl) codeEl.value = "";
+}
+
+function recalculateBudget() {
+  const summaryEl = document.getElementById("budget-summary");
+  if (!summaryEl) return;
+
+  if (!selectedParts.length) {
+    summaryEl.innerHTML = `<div class="budget-summary-empty">Nenhuma peça adicionada ainda.</div>`;
+    return;
+  }
+
+  let total = 0;
+  const items = selectedParts.map((part) => {
+    total += Number(part.cost || 0);
+    return `<div class="budget-item"><span>${part.name}</span><strong>R$ ${Number(part.cost).toLocaleString("pt-BR")}</strong></div>`;
+  });
+
+  const montagem = Math.round(total * 0.15);
+  const margem = Math.round(total * 0.20);
+  const totalProjeto = total + montagem + margem;
+
+  summaryEl.innerHTML = `
+    <div class="budget-summary-card">
+      <div class="budget-grid">
+        <div class="budget-metric"><span>Peças</span><strong>R$ ${total.toLocaleString("pt-BR")}</strong></div>
+        <div class="budget-metric"><span>Montagem base</span><strong>R$ ${montagem.toLocaleString("pt-BR")}</strong></div>
+        <div class="budget-metric"><span>Margem / risco</span><strong>R$ ${margem.toLocaleString("pt-BR")}</strong></div>
+        <div class="budget-metric highlight"><span>Total estimado</span><strong>R$ ${totalProjeto.toLocaleString("pt-BR")}</strong></div>
+      </div>
+
+      <div class="budget-list">
+        ${items.join("")}
+      </div>
+    </div>
+  `;
+}
+
+function clearAssembly() {
+  if (!robotRoot) return;
+
+  Object.keys(robotPartsState).forEach((key) => {
+    const mesh = robotPartsState[key];
+    if (mesh) {
+      robotRoot.remove(mesh);
+      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.material) mesh.material.dispose();
+    }
+  });
+
+  Object.keys(robotPartsState).forEach((key) => delete robotPartsState[key]);
+  selectedParts.length = 0;
+  recalculateBudget();
+
+  const detailsEl = document.getElementById("robot-part-details");
+  if (detailsEl) {
+    detailsEl.innerHTML = `<div class="robot-detail-empty">Selecione uma peça na biblioteca para ver os detalhes.</div>`;
+  }
+}
+
+async function generateFullRobotPlan() {
+  const promptEl = document.getElementById("assistant_prompt");
+  const resultEl = document.getElementById("assistant_result");
+  if (!promptEl || !resultEl) return;
+
+  const prompt = promptEl.value.trim();
+  resultEl.innerText = "Gerando plano completo...";
+
+  try {
+    const res = await fetch("/api/robot/library", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+    resultEl.innerText = data.text || "Não foi possível gerar a sugestão agora.";
+  } catch (e) {
+    resultEl.innerText = "Erro ao gerar plano completo.";
+  }
+}
+
+function filterParts() {
+  const text = (document.getElementById("parts-search")?.value || "").toLowerCase().trim();
+  const category = document.getElementById("parts-category")?.value || "";
+  const cards = document.querySelectorAll(".library-card");
+
+  cards.forEach((card) => {
+    const name = card.dataset.nameLower || "";
+    const cardCategory = card.dataset.category || "";
+    const matchText = !text || name.includes(text);
+    const matchCategory = !category || cardCategory === category;
+
+    card.style.display = matchText && matchCategory ? "flex" : "none";
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initRoboticsScene);
+</script>
+{% endblock %}

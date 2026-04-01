@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Criador de Apps | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Criador automático de apps</h3>
+      <p>Monte aplicativos web com estrutura pronta, páginas, banco e integração.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="feature-card">
+      <span class="feature-icon">📱</span>
+      <h4>Tipos de app</h4>
+      <p>Marketplace, dashboard, SaaS, app educacional, automação, CRM e chatbot.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚙️</span>
+      <h4>Estrutura automática</h4>
+      <p>Login, cadastro, painel, banco de dados, páginas principais e APIs.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🧠</span>
+      <h4>Ajuda por IA</h4>
+      <p>Um chat lateral pode te ajudar a definir funções e melhorar o projeto.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;" class="auth-card">
+    <div class="auth-kicker">Novo app</div>
+    <h2>Descreva o que você quer criar</h2>
+    <p>Quanto mais detalhes, melhor a base gerada para o seu app.</p>
+
+    <form class="form-grid" method="POST" action="/apps/create">
+      <div class="field">
+        <label>Nome do app</label>
+        <input type="text" name="name" placeholder="Ex.: Nexus Delivery" required>
+      </div>
+
+      <div class="field">
+        <label>Categoria</label>
+        <select name="category">
+          <option value="saas">SaaS</option>
+          <option value="marketplace">Marketplace</option>
+          <option value="dashboard">Dashboard</option>
+          <option value="education">Educação</option>
+          <option value="automation">Automação</option>
+          <option value="chatbot">Chatbot</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Funções principais</label>
+        <textarea name="features" placeholder="Ex.: login, pagamentos, painel admin, upload de arquivos, IA integrada..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Tecnologias sugeridas</label>
+        <input type="text" name="stack" placeholder="Ex.: Flask, Supabase, Stripe, OpenAI">
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Gerar estrutura do app</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

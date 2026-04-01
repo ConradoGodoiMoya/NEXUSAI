@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if request.path == '/ai' %}
+    Criar IA | Nexus IA
+  {% else %}
+    Criador de Apps | Nexus IA
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-hero">
+  <div class="panel-hero-content">
+    <div class="kicker">
+      {% if request.path == '/ai' %}Criar IA{% else %}Criador de Apps{% endif %}
+    </div>
+
+    <h2>
+      {% if request.path == '/ai' %}
+        Monte sua IA com a base da Nexus
+      {% else %}
+        Monte a base do seu app com a Nexus
+      {% endif %}
+    </h2>
+
+    <p>
+      {% if request.path == '/ai' %}
+        Estruture sua IA, defina proposta, foco, público, funções e direção do projeto.
+      {% else %}
+        Gere a base de um app com interface, lógica, módulos e estrutura inicial.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Apelido do projeto</h3>
+      <p>Defina um nome rápido para identificar sua criação.</p>
+    </div>
+  </div>
+
+  <form method="POST" action="/project/save-nickname" class="form-grid">
+    <div class="field">
+      <label for="project_nickname">Apelido do projeto</label>
+      <input
+        id="project_nickname"
+        type="text"
+        name="project_nickname"
+        placeholder="Ex: Nexus Vision, Robô Atlas, SaaS Neon"
+        value="{{ session.get('project_nickname', '') }}"
+      >
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" type="submit">Salvar apelido</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>
+        {% if request.path == '/ai' %}
+          Tipos de IA
+        {% else %}
+          Tipos de app
+        {% endif %}
+      </h3>
+      <p>Escolha uma direção para acelerar a criação.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    {% for item in app_types %}
+    <div class="feature-card">
+      <span class="feature-icon">
+        {% if request.path == '/ai' %}🧠{% else %}📱{% endif %}
+      </span>
+      <h4>{{ item }}</h4>
+      <p>
+        {% if request.path == '/ai' %}
+          Estrutura pronta para definir objetivo, comportamento e uso real.
+        {% else %}
+          Estrutura pronta para acelerar criação, validação e publicação.
+        {% endif %}
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>
+        {% if request.path == '/ai' %}
+          Gerar estrutura da IA
+        {% else %}
+          Gerar ideia base do app
+        {% endif %}
+      </h3>
+      <p>
+        {% if request.path == '/ai' %}
+          Preencha os campos e a Nexus organiza a ideia inicial.
+        {% else %}
+          Preencha os campos e a Nexus monta uma proposta inicial.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="project_name">
+        {% if request.path == '/ai' %}Nome da IA{% else %}Nome do app{% endif %}
+      </label>
+      <input
+        id="project_name"
+        type="text"
+        placeholder="{% if request.path == '/ai' %}Ex: Nexus Mentor{% else %}Ex: Nexus Delivery{% endif %}"
+      >
+    </div>
+
+    <div class="field">
+      <label for="project_niche">
+        {% if request.path == '/ai' %}Área ou foco{% else %}Nicho{% endif %}
+      </label>
+      <input
+        id="project_niche"
+        type="text"
+        placeholder="{% if request.path == '/ai' %}Ex: atendimento, automação, visão computacional{% else %}Ex: delivery, estudos, IA, produtividade{% endif %}"
+      >
+    </div>
+
+    <div class="field">
+      <label for="project_goal">
+        {% if request.path == '/ai' %}Objetivo principal{% else %}Objetivo do app{% endif %}
+      </label>
+      <textarea
+        id="project_goal"
+        placeholder="{% if request.path == '/ai' %}Descreva o que essa IA deve fazer{% else %}Descreva o problema que o app resolve{% endif %}"
+      ></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="button" onclick="generateLocalProjectIdea()">
+        {% if request.path == '/ai' %}Gerar estrutura da IA{% else %}Gerar estrutura do app{% endif %}
+      </button>
+      <a class="btn btn-ghost" href="/chat">Planejar com a Nexus IA</a>
+    </div>
+  </div>
+
+  <div id="app-result" class="panel" style="margin-top:18px; display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function generateLocalProjectIdea() {
+  const name = document.getElementById("project_name").value.trim();
+  const niche = document.getElementById("project_niche").value.trim();
+  const goal = document.getElementById("project_goal").value.trim();
+  const nickname = document.getElementById("project_nickname")
+    ? document.getElementById("project_nickname").value.trim()
+    : "Meu Projeto";
+
+  const box = document.getElementById("app-result");
+  const isAI = window.location.pathname === "/ai";
+
+  if (!name || !niche || !goal) {
+    alert("Preencha nome, nicho/foco e objetivo.");
+    return;
+  }
+
+  const title = isAI ? "Estrutura inicial da IA" : "Estrutura inicial do app";
+  const features = isAI
+    ? [
+        "Definir papel principal da IA",
+        "Mapear entradas e saídas",
+        "Criar fluxo de uso",
+        "Definir público e proposta",
+        "Separar funções essenciais do MVP"
+      ]
+    : [
+        "Tela inicial e onboarding",
+        "Login e registro",
+        "Área principal do usuário",
+        "Funções centrais do produto",
+        "Base de monetização e evolução"
+      ];
+
+  box.style.display = "block";
+  box.innerHTML = `
+    <h3>${title}</h3>
+    <p><strong>Apelido do projeto:</strong> ${escapeHtml(nickname || "Meu Projeto")}</p>
+    <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
+    <p><strong>${isAI ? "Área" : "Nicho"}:</strong> ${escapeHtml(niche)}</p>
+    <p><strong>Objetivo:</strong> ${escapeHtml(goal)}</p>
+    <h4 style="margin-top:16px;">Próximos blocos recomendados</h4>
+    <ul>
+      ${features.map(f => `<li>${escapeHtml(f)}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  return div.innerHTML;
+}
+</script>
+{% endblock %}

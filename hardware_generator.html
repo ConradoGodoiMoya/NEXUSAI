@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Gerador de Hardware | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="section-head">
+    <div>
+      <h3>Gerador de hardware com esquemas elétricos</h3>
+      <p>Monte a base de um projeto físico com componentes, lógica elétrica e conexões principais.</p>
+    </div>
+  </div>
+
+  <div class="chip-cloud">
+    {% for item in components %}
+    <span class="tech-chip">{{ item }}</span>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Gerar arquitetura eletrônica</h3>
+      <p>Informe o projeto e receba a base do circuito.</p>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="project_name">Nome do projeto</label>
+      <input id="project_name" type="text" placeholder="Ex: Robô de entrega autônoma">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="generateHardware()">Gerar hardware</button>
+    </div>
+  </div>
+
+  <div id="hardware-result" class="panel" style="margin-top:18px; display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function generateHardware() {
+  const project_name = document.getElementById("project_name").value;
+
+  const res = await fetch("/api/generate-hardware", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ project_name })
+  });
+
+  const data = await res.json();
+  const box = document.getElementById("hardware-result");
+
+  box.style.display = "block";
+  box.innerHTML = `
+    <h3>${data.project}</h3>
+    <p><strong>Lógica principal:</strong> ${data.logic}</p>
+    <h4>Componentes</h4>
+    <ul>${data.components.map(c => `<li>${c}</li>`).join("")}</ul>
+    <h4>Esquema elétrico base</h4>
+    <ul>${data.schematic.map(s => `<li>${s}</li>`).join("")}</ul>
+  `;
+}
+</script>
+{% endblock %}

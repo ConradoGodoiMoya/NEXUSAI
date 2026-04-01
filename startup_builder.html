@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Criador de Startups SaaS | Nexus IA{% endblock %}
+
+{% block content %}
+<div class="panel panel-hero">
+  <div class="panel-hero-content">
+    <div class="kicker">Startup SaaS</div>
+    <h2>Crie seu SaaS com base mais completa</h2>
+    <p>
+      Estruture produto, planos, páginas, login, dashboard, pagamentos e direção de monetização.
+    </p>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Apelido do projeto</h3>
+      <p>Defina um nome rápido para identificar sua startup.</p>
+    </div>
+  </div>
+
+  <form method="POST" action="/project/save-nickname" class="form-grid">
+    <div class="field">
+      <label for="saas_project_nickname">Apelido do projeto</label>
+      <input
+        id="saas_project_nickname"
+        type="text"
+        name="project_nickname"
+        placeholder="Ex: Nexus Pay, AulaPro, LeadFlux"
+        value="{{ session.get('project_nickname', '') }}"
+      >
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" type="submit">Salvar apelido</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Tipos de SaaS</h3>
+      <p>Escolha uma direção para acelerar a criação.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    {% for item in startup_types %}
+    <div class="feature-card">
+      <span class="feature-icon">🚀</span>
+      <h4>{{ item }}</h4>
+      <p>Estrutura pensada para transformar ideia em produto vendável.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <div class="section-head">
+    <div>
+      <h3>Estrutura inicial do SaaS</h3>
+      <p>Preencha os campos e gere uma base do produto.</p>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="saas_name">Nome do SaaS</label>
+      <input id="saas_name" type="text" placeholder="Ex: Nexus CRM">
+    </div>
+
+    <div class="field">
+      <label for="saas_niche">Nicho</label>
+      <input id="saas_niche" type="text" placeholder="Ex: produtividade, vendas, educação, automação">
+    </div>
+
+    <div class="field">
+      <label for="saas_problem">Problema que resolve</label>
+      <textarea id="saas_problem" placeholder="Descreva o problema principal que o SaaS resolve"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="button" onclick="generateSaasLocalIdea()">Gerar estrutura SaaS</button>
+      <a href="/chat" class="btn btn-ghost">Planejar com a IA</a>
+    </div>
+  </div>
+
+  <div id="saas-result" class="panel" style="margin-top:18px; display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function generateSaasLocalIdea() {
+  const name = document.getElementById("saas_name").value.trim();
+  const niche = document.getElementById("saas_niche").value.trim();
+  const problem = document.getElementById("saas_problem").value.trim();
+  const nickname = document.getElementById("saas_project_nickname")
+    ? document.getElementById("saas_project_nickname").value.trim()
+    : "Meu Projeto";
+
+  if (!name || !niche || !problem) {
+    alert("Preencha nome, nicho e problema.");
+    return;
+  }
+
+  const box = document.getElementById("saas-result");
+  box.style.display = "block";
+  box.innerHTML = `
+    <h3>Estrutura inicial do SaaS</h3>
+    <p><strong>Apelido do projeto:</strong> ${escapeHtml(nickname || "Meu Projeto")}</p>
+    <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
+    <p><strong>Nicho:</strong> ${escapeHtml(niche)}</p>
+    <p><strong>Problema:</strong> ${escapeHtml(problem)}</p>
+
+    <h4 style="margin-top:16px;">Blocos recomendados</h4>
+    <ul>
+      <li>Landing page</li>
+      <li>Login e registro</li>
+      <li>Dashboard principal</li>
+      <li>Planos e pagamentos</li>
+      <li>Métricas e retenção</li>
+    </ul>
+  `;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  return div.innerHTML;
+}
+</script>
+{% endblock %}
