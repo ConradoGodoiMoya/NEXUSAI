@@ -121,7 +121,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           <TextField label="Ordem de exibição" name="sortOrder" type="number" value={f.sortOrder} onChange={(e) => set("sortOrder", e.target.value)} help="Menor número aparece primeiro." className="pt-2" />
           <TextField label="Endereço (URL)" name="slug" value={f.slug} onChange={(e) => set("slug", e.target.value)} error={errors.slug} help="Gerado automaticamente a partir do nome." />
         </section>
-        <div className="sticky bottom-4 flex flex-col gap-2">
+        <div className="sticky bottom-4 z-10 flex flex-col gap-2 rounded-3xl border border-graphite-100 bg-white/95 p-3 shadow-lift backdrop-blur">
           <button type="submit" className="btn btn-primary btn-lg w-full" disabled={busy}>
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} {product ? "Salvar alterações" : "Cadastrar produto"}
           </button>
