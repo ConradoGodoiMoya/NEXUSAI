@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --header-h: 72px;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white font-sans text-graphite-800 antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-navy-900;
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    @apply bg-brand-200 text-navy-900;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[15px] font-semibold
+      transition-[transform,background-color,box-shadow,color] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60;
+  }
+  .btn svg { flex-shrink: 0; }
+  .btn-sm { @apply px-4 py-2 text-sm; }
+  .btn-lg { @apply px-7 py-3.5 text-base; }
+  .btn-primary { @apply bg-brand-600 text-white shadow-glow hover:-translate-y-0.5 hover:bg-brand-700; }
+  .btn-navy { @apply bg-navy-900 text-white hover:-translate-y-0.5 hover:bg-navy-800 hover:shadow-lift; }
+  .btn-outline { @apply border border-graphite-200 bg-white text-navy-900 hover:-translate-y-0.5 hover:border-navy-300 hover:shadow-soft; }
+  .btn-ghost-light { @apply border border-white/25 bg-white/5 text-white backdrop-blur hover:-translate-y-0.5 hover:bg-white/15; }
+  .btn-whatsapp { @apply bg-whatsapp-deep text-white hover:-translate-y-0.5 hover:bg-[#0b6650] hover:shadow-lift; }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-600;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply h-px w-6 bg-current;
+  }
+  .section { @apply py-20 sm:py-24 lg:py-28; }
+  .card { @apply rounded-3xl border border-graphite-100 bg-white shadow-soft; }
+
+  .input {
+    @apply block w-full rounded-xl border border-graphite-200 bg-white px-3.5 py-2.5 text-[15px] text-graphite-900 placeholder:text-graphite-400
+      transition focus:border-navy-400 focus:outline-none focus:ring-4 focus:ring-navy-100 disabled:bg-graphite-50;
+  }
+  .label { @apply mb-1.5 block text-sm font-medium text-graphite-700; }
+  .help { @apply mt-1 text-xs text-graphite-500; }
+  .field-error { @apply mt-1 text-xs font-medium text-red-600; }
+
+  .blueprint-grid {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .blueprint-grid-dark {
+    background-image:
+      linear-gradient(to right, rgb(16 38 74 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(16 38 74 / 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .prose-ctt p + p { @apply mt-4; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+}
+
+/* Animação de entrada (componente Reveal) */
+[data-reveal] {
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(24px);
+}
