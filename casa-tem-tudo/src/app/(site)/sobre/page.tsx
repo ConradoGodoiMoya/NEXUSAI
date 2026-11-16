@@ -16,7 +16,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Sobre nós — mais de 20 anos em Assis",
-  description: "Conheça a Casa Tem Tudo, loja de materiais para construção que há mais de 20 anos atende Assis e região.",
+  description: "Conheça a Casa Tentudo, loja de materiais para construção que há mais de 20 anos atende Assis e região.",
   alternates: { canonical: "/sobre" },
 };
 

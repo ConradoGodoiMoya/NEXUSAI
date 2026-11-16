@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: [
       "materiais de construção em Assis SP",
       "loja de materiais para construção em Assis",
+      "Casa Tentudo Assis",
       "Casa Tem Tudo Assis",
       "materiais para reforma em Assis",
       "materiais para construção em Assis e região",

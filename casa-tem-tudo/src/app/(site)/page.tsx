@@ -239,7 +239,7 @@ export default async function HomePage() {
             </div>
           </Reveal>
           <div className="order-1 lg:order-2">
-            <SectionHeading id="sobre-title" eyebrow="Sobre a Casa Tem Tudo" title={h.aboutTitle} description={h.aboutText} />
+            <SectionHeading id="sobre-title" eyebrow="Sobre a Casa Tentudo" title={h.aboutTitle} description={h.aboutText} />
             <Reveal delay={0.1}>
               <ul className="mt-8 grid gap-4 sm:grid-cols-3">
                 {[

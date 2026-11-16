@@ -114,7 +114,7 @@ export function HouseIllustration({ className }: { className?: string }) {
   );
 }
 
-export function StorefrontIllustration({ className, name = "Casa Tem Tudo" }: { className?: string; name?: string }) {
+export function StorefrontIllustration({ className, name = "Casa Tentudo" }: { className?: string; name?: string }) {
   return (
     <svg viewBox="0 0 560 420" className={className} role="img" aria-label={`Ilustração da fachada da loja ${name}`}>
       <defs>
@@ -131,7 +131,7 @@ export function StorefrontIllustration({ className, name = "Casa Tem Tudo" }: { 
       <rect x="60" y="60" width="440" height="300" rx="6" fill="#fff" />
       <rect x="60" y="60" width="440" height="78" rx="6" fill="#0B1B36" />
       <text x="280" y="108" textAnchor="middle" fontFamily="var(--font-jakarta), sans-serif" fontWeight="800" fontSize="30" fill="#fff" letterSpacing="-0.5">
-        CASA TEM <tspan fill="#F26B1D">TUDO</tspan>
+        CASA <tspan fill="#F26B1D">TENTUDO</tspan>
       </text>
       <text x="280" y="128" textAnchor="middle" fontFamily="var(--font-inter), sans-serif" fontWeight="600" fontSize="10" fill="#B3C6E3" letterSpacing="3">
         MATERIAIS PARA CONSTRUÇÃO

@@ -27,7 +27,7 @@ export function Footer({ settings, categories }: { settings: SiteSettings; categ
               </a>
             )}
             {c.facebook && (
-              <a href={c.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Casa Tem Tudo" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 transition hover:border-brand-400 hover:bg-white/5 hover:text-white">
+              <a href={c.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Casa Tentudo" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 transition hover:border-brand-400 hover:bg-white/5 hover:text-white">
                 <FacebookIcon className="h-5 w-5" />
               </a>
             )}

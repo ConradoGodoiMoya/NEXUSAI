@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ToastProvider } from "@/components/admin/toast";
 
 export const metadata: Metadata = {
-  title: { default: "Painel administrativo", template: "%s · Painel Casa Tem Tudo" },
+  title: { default: "Painel administrativo", template: "%s · Painel Casa Tentudo" },
   robots: { index: false, follow: false },
 };
 

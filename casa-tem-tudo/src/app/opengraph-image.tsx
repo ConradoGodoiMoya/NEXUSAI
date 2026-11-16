@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Casa Tem Tudo — Materiais para Construção em Assis/SP";
+export const alt = "Casa Tentudo — Materiais para Construção em Assis/SP";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,7 +26,7 @@ export default function OpenGraphImage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 48, fontWeight: 800, display: "flex" }}>
-              Casa Tem&nbsp;<span style={{ color: "#F7802F" }}>Tudo</span>
+              Casa&nbsp;<span style={{ color: "#F7802F" }}>Tentudo</span>
             </div>
             <div style={{ fontSize: 22, letterSpacing: 6, color: "#B3C6E3" }}>MATERIAIS PARA CONSTRUÇÃO</div>
           </div>

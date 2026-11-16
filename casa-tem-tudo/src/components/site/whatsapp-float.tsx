@@ -42,7 +42,7 @@ export function WhatsAppFloat({ href }: { href: string }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Conversar com a Casa Tem Tudo pelo WhatsApp"
+            aria-label="Conversar com a Casa Tentudo pelo WhatsApp"
             className="group relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-white shadow-[0_12px_30px_-8px_rgba(37,211,102,.7)] transition-transform duration-200 hover:scale-105 active:scale-95"
           >
             <span className="absolute inset-0 rounded-full bg-whatsapp animate-pulse-ring" aria-hidden="true" />

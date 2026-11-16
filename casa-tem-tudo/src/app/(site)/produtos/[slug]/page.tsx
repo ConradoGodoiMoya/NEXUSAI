@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) return { title: "Produto não encontrado", robots: { index: false } };
-  const description = (p.shortDescription || p.description || `${p.name} na Casa Tem Tudo, em Assis/SP.`).slice(0, 160);
+  const description = (p.shortDescription || p.description || `${p.name} na Casa Tentudo, em Assis/SP.`).slice(0, 160);
   return {
     title: p.name,
     description,

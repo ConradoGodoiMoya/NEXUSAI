@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Casa Tem Tudo Materiais para Construção",
-    short_name: "Casa Tem Tudo",
+    name: "Casa Tentudo Materiais para Construção",
+    short_name: "Casa Tentudo",
     description: "Materiais para construção em Assis/SP há mais de 20 anos.",
     start_url: "/",
     display: "standalone",

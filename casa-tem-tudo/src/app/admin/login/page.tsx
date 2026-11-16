@@ -16,7 +16,7 @@ export default function LoginPage() {
             <p className="font-display text-4xl font-extrabold leading-tight text-white">Gerencie o site da sua loja,<br />sem precisar de programação.</p>
             <p className="mt-4 max-w-md text-white/60">Produtos, categorias, imagens, avaliações e informações da empresa em um só lugar.</p>
           </div>
-          <p className="text-sm text-white/40">Acesso restrito à equipe Casa Tem Tudo.</p>
+          <p className="text-sm text-white/40">Acesso restrito à equipe Casa Tentudo.</p>
         </div>
       </div>
       <div className="flex items-center justify-center bg-graphite-50 px-6 py-16">

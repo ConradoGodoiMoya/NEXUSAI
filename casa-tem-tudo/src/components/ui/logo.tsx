@@ -25,7 +25,7 @@ export function Logo({ className, tone = "dark", compact = false }: { className?
             tone === "dark" ? "text-navy-900" : "text-white",
           )}
         >
-          Casa Tem <span className="text-brand-500">Tudo</span>
+          Casa <span className="text-brand-500">Tentudo</span>
         </span>
         {!compact && (
           <span

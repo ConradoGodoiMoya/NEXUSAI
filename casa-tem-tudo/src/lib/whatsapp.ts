@@ -8,7 +8,7 @@ export function whatsappLink(number: string, message?: string): string {
 }
 
 export const whatsappMessages = {
-  general: "Olá! Vim pelo site da Casa Tem Tudo e gostaria de falar com a equipe.",
+  general: "Olá! Vim pelo site da Casa Tentudo e gostaria de falar com a equipe.",
   product: (name: string) => `Olá! Gostaria de saber mais sobre o produto ${name}.`,
   category: (name: string) => `Olá! Gostaria de consultar os produtos da categoria ${name}.`,
   quote: "Olá! Gostaria de fazer um orçamento de materiais para minha obra.",

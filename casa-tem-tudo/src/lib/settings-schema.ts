@@ -90,8 +90,8 @@ export type Highlight = z.infer<typeof highlightSchema>;
  */
 export const defaultSettings: SiteSettings = {
   company: {
-    name: "Casa Tem Tudo Materiais para Construção",
-    shortName: "Casa Tem Tudo",
+    name: "Casa Tentudo Materiais para Construção",
+    shortName: "Casa Tentudo",
     slogan: "Da fundação ao acabamento, sua construção começa aqui.",
     phone: "(18) 3321-1449",
     whatsapp: "+55 18 3321-1449",
@@ -104,9 +104,9 @@ export const defaultSettings: SiteSettings = {
     zip: "19815-001",
     instagram: "https://www.instagram.com/casatentudo/",
     instagramHandle: "@casatentudo",
-    facebook: "https://www.facebook.com/search/top?q=Casa%20Tem%20Tudo%20Assis",
+    facebook: "https://www.facebook.com/search/top?q=Casa%20Tentudo%20Assis",
     googleReviewsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Casa+Tem+Tudo+Materiais+para+Constru%C3%A7%C3%A3o+Av.+Rui+Barbosa+2644+Assis+SP",
+      "https://www.google.com/maps/search/?api=1&query=Casa+Tentudo+Materiais+para+Constru%C3%A7%C3%A3o+Av.+Rui+Barbosa+2644+Assis+SP",
     googleRating: 4.7,
     googleReviewCount: 129,
     yearsLabel: "+20 anos",
@@ -128,19 +128,19 @@ export const defaultSettings: SiteSettings = {
     ],
     aboutTitle: "Mais de duas décadas construindo confiança.",
     aboutText:
-      "A Casa Tem Tudo é uma loja de materiais para construção que há mais de 20 anos atende Assis e região. Nossa história é construída junto com clientes que buscam soluções para suas obras, reformas e projetos.",
+      "A Casa Tentudo é uma loja de materiais para construção que há mais de 20 anos atende Assis e região. Nossa história é construída junto com clientes que buscam soluções para suas obras, reformas e projetos.",
     aboutImage: "",
     ctaTitle: "Sua próxima construção começa com a escolha certa.",
-    ctaText: "Entre em contato com a Casa Tem Tudo e converse com nossa equipe.",
+    ctaText: "Entre em contato com a Casa Tentudo e converse com nossa equipe.",
   },
   about: {
     pageIntro:
       "Uma loja tradicional de Assis que oferece variedade, atendimento próximo e soluções para quem deseja construir, reformar ou melhorar sua casa.",
     body:
-      "A Casa Tem Tudo é uma loja de materiais para construção que há mais de 20 anos atende Assis e região. Nossa história é construída junto com clientes que buscam soluções para suas obras, reformas e projetos.",
+      "A Casa Tentudo é uma loja de materiais para construção que há mais de 20 anos atende Assis e região. Nossa história é construída junto com clientes que buscam soluções para suas obras, reformas e projetos.",
   },
   seo: {
-    title: "Casa Tem Tudo | Materiais para Construção em Assis/SP",
+    title: "Casa Tentudo | Materiais para Construção em Assis/SP",
     description:
       "Loja de materiais para construção em Assis/SP há mais de 20 anos. Consulte produtos, fale pelo WhatsApp (18) 3321-1449 e visite-nos na Av. Rui Barbosa, 2644.",
     ogImage: "",

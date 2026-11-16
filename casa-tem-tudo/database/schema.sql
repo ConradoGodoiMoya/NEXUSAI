@@ -1,4 +1,4 @@
--- Casa Tem Tudo — esquema do banco de dados (MySQL 8+ / MariaDB 10.6+)
+-- Casa Tentudo — esquema do banco de dados (MySQL 8+ / MariaDB 10.6+)
 -- Executado automaticamente por `npm run db:setup` (idempotente).
 
 CREATE TABLE IF NOT EXISTS users (

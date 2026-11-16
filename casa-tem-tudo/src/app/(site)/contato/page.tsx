@@ -14,7 +14,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Contato, endereço e WhatsApp",
-  description: "Fale com a Casa Tem Tudo pelo WhatsApp (18) 3321-1449 ou visite a loja na Av. Rui Barbosa, 2644 — Jardim Paulista, Assis/SP.",
+  description: "Fale com a Casa Tentudo pelo WhatsApp (18) 3321-1449 ou visite a loja na Av. Rui Barbosa, 2644 — Jardim Paulista, Assis/SP.",
   alternates: { canonical: "/contato" },
 };
 

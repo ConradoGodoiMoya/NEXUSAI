@@ -1,6 +1,6 @@
-# Casa Tem Tudo — Site institucional, catálogo e painel administrativo
+# Casa Tentudo — Site institucional, catálogo e painel administrativo
 
-Site da **Casa Tem Tudo Materiais para Construção** (Assis/SP): página institucional, catálogo de produtos com consulta pelo WhatsApp e painel para a loja gerenciar o conteúdo sem programação.
+Site da **Casa Tentudo Materiais para Construção** (Assis/SP): página institucional, catálogo de produtos com consulta pelo WhatsApp e painel para a loja gerenciar o conteúdo sem programação.
 
 ## Stack
 
@@ -76,7 +76,7 @@ Toda alteração atualiza o site na hora (cache invalidado por tags).
 
 Todos os botões usam links oficiais `wa.me` com mensagem pronta:
 
-- Geral: “Olá! Vim pelo site da Casa Tem Tudo e gostaria de falar com a equipe.”
+- Geral: “Olá! Vim pelo site da Casa Tentudo e gostaria de falar com a equipe.”
 - Produto: “Olá! Gostaria de saber mais sobre o produto [NOME DO PRODUTO].”
 - Categoria e busca sem resultado: mensagens específicas.
 - Página de contato: formulário que monta a mensagem e abre o WhatsApp (ou o e-mail), sem armazenar dados pessoais.

@@ -13,7 +13,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  applicationName: "Casa Tem Tudo",
+  applicationName: "Casa Tentudo",
   formatDetection: { telephone: false },
 };
 

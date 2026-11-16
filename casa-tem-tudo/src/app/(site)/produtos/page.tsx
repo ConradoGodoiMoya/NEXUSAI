@@ -23,8 +23,8 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }): 
   const cat = categories.find((c) => c.slug === sp.categoria);
   const title = cat ? `${cat.name} em Assis/SP` : "Produtos e materiais para construção";
   const description = cat
-    ? `${cat.name} na Casa Tem Tudo, em Assis/SP. ${cat.description} Consulte disponibilidade e preços pelo WhatsApp.`
-    : "Catálogo de materiais para construção e reforma da Casa Tem Tudo, em Assis/SP. Consulte disponibilidade e preços pelo WhatsApp.";
+    ? `${cat.name} na Casa Tentudo, em Assis/SP. ${cat.description} Consulte disponibilidade e preços pelo WhatsApp.`
+    : "Catálogo de materiais para construção e reforma da Casa Tentudo, em Assis/SP. Consulte disponibilidade e preços pelo WhatsApp.";
   return {
     title,
     description,

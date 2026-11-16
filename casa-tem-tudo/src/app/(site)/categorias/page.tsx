@@ -10,7 +10,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Categorias de materiais para construção",
-  description: "Explore as categorias de materiais para construção e reforma da Casa Tem Tudo, em Assis/SP, e consulte produtos pelo WhatsApp.",
+  description: "Explore as categorias de materiais para construção e reforma da Casa Tentudo, em Assis/SP, e consulte produtos pelo WhatsApp.",
   alternates: { canonical: "/categorias" },
 };
 
